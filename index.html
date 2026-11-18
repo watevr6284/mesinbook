@@ -1,0 +1,3187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Sistem peminjaman dan pengembalian LCD proyektor & ruangan dengan peran admin & pengunjung, manajemen inventaris, peminjaman fasilitas, dan laporan.">
+<title>MESINBOOK — Booking Fasilitas Teknik Mesin</title>
+<link rel="icon" href="logo-kecil.webp">
+<meta name="theme-color" content="#F59E0B">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MESINBOOK">
+<meta property="og:title" content="MESINBOOK — Booking Fasilitas Teknik Mesin">
+<meta property="og:description" content="Satu formulir untuk meminjam LCD proyektor & ruangan Teknik Mesin. Pantau status peminjamanmu — pengembalian diverifikasi admin.">
+<meta property="og:image" content="https://pinlcd.vercel.app/logo-kecil.webp">
+<meta property="og:url" content="https://pinlcd.vercel.app/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MESINBOOK — Booking Fasilitas Teknik Mesin">
+<meta name="twitter:description" content="Satu formulir untuk meminjam LCD proyektor & ruangan Teknik Mesin.">
+<meta name="twitter:image" content="https://pinlcd.vercel.app/logo-kecil.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFDF5;
+  --surface:#FFFFFF;
+  --ink:#241F14;
+  --muted:#6E6753;
+  --line:#EFEAE0;
+  --sidebar:#FFFBEB;
+  --sidebar-2:#FEF3C7;
+  --sidebar-ink:#3A2503;
+  --accent:#F59E0B;
+  --accent-hover:#EA580C;
+  --accent-ink:#3A2503;
+  --green:#047857;
+  --green-bg:#ECFDF5;
+  --red:#B91C1C;
+  --red-bg:#FDE8E8;
+  --amber-bg:#FEF3C7;
+  --amber-deep:#B45309;
+  --gray-bg:#F6F3EA;
+  --radius:14px;
+  --shadow:0 1px 2px rgba(28,25,23,.05),0 8px 24px rgba(28,25,23,.06);
+  --shadow-lg:0 12px 40px rgba(28,25,23,.18);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+.hidden{display:none !important}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+:focus-visible{outline:3px solid rgba(245,158,11,.55);outline-offset:2px;border-radius:6px}
+
+/* ============ AUTH SCREEN ============ */
+.auth-screen{display:flex;min-height:100vh}
+.auth-hero{
+  flex:1.15;color:var(--ink);
+  padding:48px 56px;display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+  background:
+    radial-gradient(560px 480px at 12% 15%, rgba(254,240,138,.55), transparent 60%),
+    radial-gradient(500px 420px at 88% 85%, rgba(253,186,116,.38), transparent 62%),
+    radial-gradient(360px 300px at 55% -8%, rgba(253,224,71,.35), transparent 60%),
+    var(--bg);
+}
+.auth-hero::after{
+  content:"";position:absolute;width:520px;height:520px;border-radius:50%;
+  border:2px solid rgba(217,119,6,.22);right:-160px;top:-160px;
+}
+.auth-hero::before{
+  content:"";position:absolute;width:340px;height:340px;border-radius:50%;
+  border:2px dashed rgba(217,119,6,.28);right:70px;bottom:-110px;
+}
+.brand-row{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.brand-mark{width:64px;height:64px;flex:0 0 auto;border-radius:14px;object-fit:contain;background:#fff;display:block}
+.brand-name{font-weight:800;font-size:1.4rem;letter-spacing:-.03em;color:var(--ink)}
+.brand-name em{font-style:normal;background:linear-gradient(120deg,#F59E0B,#EA580C);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand-tag{font-size:.7rem;color:var(--accent-hover);letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+.brand-mark--lg{width:190px;height:190px;border-radius:22px;object-fit:contain;background:#fff;display:block;flex:0 0 auto}
+.hero-mid{position:relative;z-index:1;max-width:560px;margin:40px 0}
+.hero-kicker{
+  display:inline-flex;align-items:center;gap:8px;font-size:.68rem;font-weight:800;
+  letter-spacing:.16em;text-transform:uppercase;color:#B45309;
+  background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:999px;padding:7px 16px;margin-bottom:22px;
+}
+.hero-kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.hero-mid h1{
+  font-size:clamp(2.1rem,3.8vw,3.15rem);line-height:1.08;font-weight:800;letter-spacing:-.035em;color:var(--ink);
+}
+.hero-mid h1 .hl{background:linear-gradient(120deg,#F59E0B,#EA580C);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-mid p{margin-top:18px;color:#4B5563;font-size:1.02rem;line-height:1.65;max-width:480px}
+.hero-bullets{margin-top:30px;display:flex;flex-direction:column;gap:13px}
+.hero-bullets li{list-style:none;display:flex;gap:12px;align-items:flex-start;color:#3B352A;font-size:.95rem;font-weight:500;line-height:1.5}
+.hero-bullets .tick{
+  flex:0 0 auto;width:22px;height:22px;border-radius:7px;background:#FEF3C7;
+  display:flex;align-items:center;justify-content:center;color:#D97706;margin-top:1px;
+}
+.hero-foot{position:relative;z-index:1;color:var(--muted);font-size:.8rem;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.hero-foot code{font-family:'JetBrains Mono',monospace;color:#B45309;font-weight:600}
+
+.auth-panel{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 28px;background:var(--bg)}
+.auth-card{
+  width:100%;max-width:440px;background:var(--surface);border:1px solid var(--line);
+  border-radius:20px;box-shadow:var(--shadow-lg);padding:34px 34px 28px;
+}
+.auth-card h2{font-size:1.45rem;font-weight:800;letter-spacing:-.02em}
+.auth-card .sub{color:var(--muted);font-size:.88rem;margin-top:6px;margin-bottom:20px}
+.auth-tabs{display:flex;background:var(--gray-bg);border-radius:12px;padding:5px;margin-bottom:22px}
+.auth-tab{
+  flex:1;border:none;background:transparent;border-radius:9px;padding:10px 12px;
+  font-weight:700;font-size:.9rem;color:var(--muted);transition:all .2s;
+}
+.auth-tab.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px rgba(28,25,23,.12)}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:.8rem;font-weight:700;margin-bottom:6px;color:#44403C}
+.field .req{color:var(--red)}
+.input-wrap{position:relative}
+.input-wrap svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#A8A29E;pointer-events:none}
+.input-wrap input{padding-left:42px}
+.plain-input{
+  width:100%;border:1.5px solid var(--line);border-radius:11px;padding:11px 13px;font-size:.92rem;
+  background:#FCFCFB;color:var(--ink);transition:border-color .15s, box-shadow .15s;
+}
+.plain-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(245,158,11,.22);background:#fff}
+.toggle-pass{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:transparent;
+  color:#A8A29E;padding:6px;border-radius:8px;display:flex;align-items:center;
+}
+.toggle-pass:hover{color:var(--ink);background:var(--gray-bg)}
+.hint{font-size:.74rem;color:var(--muted);margin-top:5px}
+.error-text{font-size:.78rem;color:var(--red);margin-top:5px;font-weight:600;min-height:1em}
+
+.btn{
+  display:inline-flex;align-items:center;gap:8px;border:none;border-radius:11px;
+  padding:11px 18px;font-size:.9rem;font-weight:700;transition:transform .12s,background .15s,box-shadow .15s;
+  text-decoration:none;white-space:nowrap;
+}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(120deg,#F59E0B,#EA580C);color:#FFFBEB;box-shadow:0 8px 20px rgba(217,119,6,.35),inset 0 1px 0 rgba(255,255,255,.35)}
+.btn-primary:hover{background:linear-gradient(120deg,#FBBF24,#F97316);color:#FFFBEB;box-shadow:0 10px 26px rgba(234,88,12,.4),inset 0 1px 0 rgba(255,255,255,.4)}
+.btn-dark{background:var(--ink);color:#FAFAF9}
+.btn-dark:hover{background:#292524}
+.btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn-ghost:hover{background:var(--gray-bg)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#991B1B}
+.btn-block{width:100%;justify-content:center;padding:13px 18px;font-size:.95rem}
+.btn-sm{padding:8px 13px;font-size:.8rem;border-radius:9px}
+.btn-xs{padding:6px 11px;font-size:.74rem;border-radius:8px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+
+.demo-hint{
+  margin-top:18px;background:#FFFBEB;border:1px dashed #F59E0B;border-radius:12px;
+  padding:12px 14px;font-size:.78rem;color:#92400E;line-height:1.6;
+}
+.demo-hint code{font-family:'JetBrains Mono',monospace;background:#FEF3C7;padding:1px 6px;border-radius:5px;font-size:.74rem}
+
+.link-btn{
+  border:none;background:transparent;color:var(--amber-deep);font-size:.8rem;font-weight:700;
+  padding:4px 2px;border-radius:6px;text-decoration:underline;text-underline-offset:3px;
+}
+.link-btn:hover{color:var(--ink)}
+
+/* ============ APP SHELL ============ */
+.app-screen{display:flex;min-height:100vh}
+.sidebar{
+  width:256px;background:var(--sidebar);color:var(--sidebar-ink);
+  display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:40;
+  padding:22px 16px 16px;transition:transform .25s ease;
+}
+.sidebar .brand-row{padding:2px 8px 20px;border-bottom:1px solid #F0E4BE}
+.sidebar .brand-name{font-size:1.15rem;color:var(--ink)}
+.sidebar .brand-tag{font-size:.62rem}
+.nav{margin-top:18px;display:flex;flex-direction:column;gap:4px;flex:1;overflow-y:auto}
+.nav-label{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:#B45309;font-weight:800;padding:14px 12px 6px}
+.nav-item{
+  display:flex;align-items:center;gap:12px;border:none;background:transparent;color:var(--sidebar-ink);
+  padding:11px 12px;border-radius:11px;font-size:.9rem;font-weight:600;text-align:left;transition:background .15s,color .15s;
+  position:relative;width:100%;
+}
+.nav-item:hover{background:var(--sidebar-2);color:var(--ink)}
+.nav-item.active{background:linear-gradient(120deg,#F59E0B,#EA580C);color:#FFFDF5;font-weight:800;box-shadow:0 6px 16px rgba(234,88,12,.35)}
+.nav-item.active svg{color:#FFFDF5}
+.nav-badge{
+  margin-left:auto;background:var(--red);color:#fff;font-size:.68rem;font-weight:800;
+  min-width:22px;height:22px;border-radius:999px;padding:0 7px;display:flex;align-items:center;justify-content:center;
+}
+.nav-item.active .nav-badge{background:rgba(255,255,255,.28);color:#FFFDF5}
+.sidebar-foot{border-top:1px solid #F0E4BE;padding-top:14px;display:flex;flex-direction:column;gap:4px}
+.side-action{
+  display:flex;align-items:center;gap:12px;background:transparent;border:none;color:#A8A29E;
+  padding:10px 12px;border-radius:11px;font-size:.85rem;font-weight:600;text-align:left;width:100%;
+}
+.side-action:hover{background:var(--sidebar-2);color:var(--ink)}
+.side-action.danger:hover{background:#FDE8E8;color:#B91C1C}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(12,10,9,.55);z-index:35}
+.sidebar-overlay.show{display:block}
+
+.main{flex:1;margin-left:256px;display:flex;flex-direction:column;min-width:0}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:16px 30px;background:rgba(245,244,240,.9);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;
+}
+.topbar-left{display:flex;align-items:center;gap:14px;min-width:0}
+.topbar h1{font-size:1.12rem;font-weight:800;letter-spacing:-.01em}
+.topbar p{font-size:.75rem;color:var(--muted);margin-top:1px}
+.icon-btn{
+  border:1px solid var(--line);background:var(--surface);border-radius:10px;width:38px;height:38px;
+  display:inline-flex;align-items:center;justify-content:center;color:#57534E;transition:all .15s;
+}
+.icon-btn:hover{background:var(--gray-bg);color:var(--ink)}
+#btnHamburger{display:none}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.bell{
+  position:relative;border:1px solid var(--line);background:var(--surface);border-radius:10px;
+  width:38px;height:38px;display:flex;align-items:center;justify-content:center;color:#57534E;
+}
+.bell:hover{background:var(--gray-bg)}
+.bell-badge{
+  position:absolute;top:-7px;right:-7px;background:var(--red);color:#fff;font-size:.62rem;font-weight:800;
+  min-width:20px;height:20px;border-radius:999px;padding:0 5px;display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--bg);
+}
+.user-chip{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--line);padding:7px 14px 7px 8px;border-radius:999px}
+.avatar{
+  width:36px;height:36px;border-radius:50%;background:var(--ink);color:var(--accent);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;
+}
+.user-name{font-size:.83rem;font-weight:700;line-height:1.15}
+.role-badge{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.role-badge.admin{color:var(--amber-deep)}
+
+.content{padding:26px 30px 48px;max-width:1460px;width:100%;margin:0 auto}
+.view{display:none;animation:fadeUp .35s ease}
+.view.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* stat cards */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.stat-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:18px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;
+}
+.stat-card .stat-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stat-label{font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.stat-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.stat-icon.amber{background:var(--amber-bg);color:var(--amber-deep)}
+.stat-icon.green{background:var(--green-bg);color:var(--green)}
+.stat-icon.red{background:var(--red-bg);color:var(--red)}
+.stat-icon.dark{background:var(--gray-bg);color:var(--ink)}
+.stat-value{font-size:1.9rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.stat-sub{font-size:.73rem;color:var(--muted)}
+
+/* panels & cards */
+.panel-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.card-head h3{font-size:.92rem;font-weight:800;display:flex;align-items:center;gap:9px}
+.card-head h3 svg{color:var(--amber-deep)}
+.card-body{padding:16px 20px}
+.count-pill{background:var(--red-bg);color:var(--red);font-size:.72rem;font-weight:800;border-radius:999px;padding:4px 12px}
+.count-pill.ok{background:var(--green-bg);color:var(--green)}
+
+.attention-item{
+  display:flex;align-items:center;gap:13px;padding:12px 13px;border:1px solid var(--line);
+  border-radius:12px;margin-bottom:10px;background:#FFFDF8;
+}
+.attention-item:last-child{margin-bottom:0}
+.attention-item.late{border-color:#FECACA;background:#FEF7F7}
+.att-icon{flex:0 0 auto;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--amber-bg);color:var(--amber-deep)}
+.attention-item.late .att-icon{background:var(--red-bg);color:var(--red)}
+.att-info{min-width:0;flex:1}
+.att-title{font-size:.86rem;font-weight:800}
+.att-sub{font-size:.73rem;color:var(--muted);margin-top:2px;line-height:1.45}
+.att-days{flex:0 0 auto;text-align:right}
+.att-days b{display:block;font-size:1.05rem;letter-spacing:-.02em;color:var(--red)}
+.att-days span{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.att-days.today b{color:var(--amber-deep)}
+
+.recent-item{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px dashed var(--line)}
+.recent-item:last-child{border-bottom:none}
+.recent-dot{flex:0 0 auto;width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.recent-dot.done{background:#22C55E}
+.recent-info{flex:1;min-width:0}
+.recent-title{font-size:.84rem;font-weight:700}
+.recent-sub{font-size:.73rem;color:var(--muted);margin-top:1px}
+
+.empty-state{text-align:center;padding:34px 16px;color:var(--muted)}
+.empty-state svg{margin:0 auto 10px;color:#D6D3D1}
+.empty-state p{font-size:.86rem}
+
+/* tables */
+.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:220px;max-width:420px}
+.search-wrap svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#A8A29E;pointer-events:none}
+.search-wrap input{
+  width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:11px;
+  padding:11px 13px 11px 42px;font-size:.88rem;transition:all .15s;
+}
+.search-wrap input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(245,158,11,.22)}
+.select-input{
+  border:1.5px solid var(--line);background:var(--surface);border-radius:11px;padding:11px 13px;font-size:.88rem;color:var(--ink);
+}
+.select-input:focus{outline:none;border-color:var(--accent)}
+.pill-group{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.pill{
+  border:1.5px solid var(--line);background:var(--surface);color:#57534E;border-radius:999px;
+  padding:8px 17px;font-size:.8rem;font-weight:700;transition:all .15s;
+}
+.pill:hover{border-color:#D6D3D1}
+.pill.active{background:var(--ink);border-color:var(--ink);color:#FAFAF9}
+.pill .n{opacity:.65;font-weight:600;margin-left:5px}
+
+.table-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead th{
+  text-align:left;font-size:.66rem;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+  padding:12px 16px;background:#FAFAF8;border-bottom:1px solid var(--line);white-space:nowrap;
+}
+tbody td{padding:12px 16px;border-bottom:1px solid #F0EFEC;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#FCFCFA}
+.code-cell{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:#44403C}
+.unit-name{font-weight:800;font-size:.86rem}
+.unit-sub{font-size:.72rem;color:var(--muted);margin-top:2px}
+
+.badge{
+  display:inline-flex;align-items:center;gap:6px;font-size:.68rem;font-weight:800;
+  letter-spacing:.05em;text-transform:uppercase;border-radius:999px;padding:5px 12px;white-space:nowrap;
+}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.badge.tersedia{background:var(--green-bg);color:var(--green)}
+.badge.dipinjam{background:var(--amber-bg);color:var(--amber-deep)}
+.badge.maintenance{background:var(--gray-bg);color:#57534E}
+.badge.dikembalikan{background:var(--green-bg);color:var(--green)}
+.badge.admin{background:#1C1917;color:var(--accent)}
+.badge.user{background:var(--gray-bg);color:#57534E}
+.badge.lcd{background:#1C1917;color:var(--accent)}
+.badge.ruang{background:#EEF2FF;color:#3730A3}
+.badge.waiting{background:#FEF3C7;color:#92400E}
+
+.row-actions{display:flex;gap:7px;justify-content:flex-end}
+.mini-btn{
+  border:1px solid var(--line);background:#FCFCFB;border-radius:8px;padding:6px 10px;font-size:.73rem;
+  font-weight:700;color:#44403C;display:inline-flex;align-items:center;gap:6px;transition:all .13s;
+}
+.mini-btn:hover{background:var(--gray-bg);color:var(--ink)}
+.mini-btn.amber{background:var(--accent);border-color:#D97706;color:var(--accent-ink)}
+.mini-btn.amber:hover{background:var(--accent-hover);color:#FFFBEB}
+.mini-btn.danger{color:var(--red);border-color:#FECACA}
+.mini-btn.danger:hover{background:var(--red-bg)}
+.mini-btn[disabled]{opacity:.4;cursor:not-allowed}
+
+/* banner */
+.notice-banner{
+  display:flex;align-items:center;gap:12px;background:#FFFBEB;border:1px solid #FCD34D;border-radius:12px;
+  padding:12px 16px;margin-bottom:16px;font-size:.85rem;color:#92400E;font-weight:600;
+}
+.notice-banner.danger{background:var(--red-bg);border-color:#FECACA;color:var(--red)}
+.notice-banner svg{flex:0 0 auto}
+
+/* report */
+.report-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.summary-cell{background:#FAFAF8;border:1px solid var(--line);border-radius:12px;padding:13px 16px}
+.summary-cell b{display:block;font-size:1.25rem;letter-spacing:-.02em}
+.summary-cell span{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:700}
+
+/* modal */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(12,10,9,.55);z-index:60;
+  align-items:center;justify-content:center;padding:22px;
+}
+.modal-overlay.show{display:flex;animation:fadeIn .18s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--surface);border-radius:18px;box-shadow:var(--shadow-lg);width:100%;max-width:520px;
+  max-height:92vh;overflow-y:auto;animation:popIn .22s ease;
+}
+.modal-sm{max-width:430px}
+@keyframes popIn{from{opacity:0;transform:scale(.94) translateY(12px)}to{opacity:1;transform:none}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 22px 0}
+.modal-head h3{font-size:1.02rem;font-weight:800;letter-spacing:-.01em}
+.modal-body{padding:16px 22px}
+.modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:4px 22px 20px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pinjam-info{
+  background:#FAFAF8;border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px;
+  font-size:.83rem;line-height:1.55;
+}
+.pinjam-info b{font-size:.95rem}
+/* toast */
+#toastWrap{position:fixed;bottom:26px;right:26px;z-index:80;display:flex;flex-direction:column;gap:10px}
+.toast{
+  display:flex;align-items:flex-start;gap:11px;background:var(--ink);color:#FAFAF9;border-radius:13px;
+  padding:13px 16px;font-size:.85rem;box-shadow:var(--shadow-lg);max-width:360px;animation:toastIn .28s ease;
+  line-height:1.45;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
+.toast .t-dot{flex:0 0 auto;width:10px;height:10px;border-radius:50%;margin-top:4px;background:#22C55E}
+.toast.error .t-dot{background:#F87171}
+.toast.warning .t-dot{background:var(--accent)}
+.toast.info .t-dot{background:#7DD3FC}
+
+/* print area (laporan) */
+#printArea{display:none}
+@media print{
+  body{background:#fff}
+  #authScreen,.app-screen,#toastWrap,.modal-overlay{display:none !important}
+  #printArea{display:block !important;font-family:Georgia,serif;color:#111;padding:10px 6px}
+  #printArea h1{font-size:20px;text-align:center;letter-spacing:.04em;margin-bottom:2px}
+  #printArea .p-sub{text-align:center;font-size:11px;color:#444;margin-bottom:4px}
+  #printArea .p-meta{text-align:center;font-size:11px;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:12px}
+  #printArea table{width:100%;border-collapse:collapse;font-size:10.5px}
+  #printArea th,#printArea td{border:1px solid #333;padding:5px 7px;text-align:left}
+  #printArea thead th{background:#eee;text-transform:none;font-size:10px}
+  #printArea .p-summary{margin-top:12px;font-size:11px;line-height:1.7}
+  #printArea .p-sign{margin-top:34px;display:flex;justify-content:flex-end}
+  #printArea .p-sign-box{text-align:center;font-size:11px;width:230px}
+  #printArea .p-sign-name{margin-top:56px;border-top:1px solid #111;padding-top:4px;font-weight:bold}
+}
+
+/* responsive */
+@media (max-width:1180px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .panel-grid{grid-template-columns:1fr}
+  .report-summary{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:1024px){
+  .auth-hero{display:none}
+}
+@media (max-width:920px){
+  .sidebar{transform:translateX(-105%)}
+  .sidebar.open{transform:none;box-shadow:var(--shadow-lg)}
+  .main{margin-left:0}
+  #btnHamburger{display:inline-flex}
+  .topbar{padding:13px 16px}
+  .content{padding:18px 14px 40px}
+  .user-chip .user-meta{display:none}
+  .topbar p{display:none}
+}
+@media (max-width:560px){
+  .stats-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .stat-value{font-size:1.5rem}
+  .form-row{grid-template-columns:1fr}
+  .auth-card{padding:26px 22px}
+  #toastWrap{left:16px;right:16px;bottom:16px}
+  .toast{max-width:none}
+}
+
+/* statistik per kelas */
+.kelas-row{display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px dashed var(--line)}
+.kelas-row:last-child{border-bottom:none}
+.kelas-name{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.78rem;min-width:52px;color:#3F3A30}
+.kelas-bar{flex:1;height:10px;background:var(--gray-bg);border-radius:999px;overflow:hidden}
+.kelas-bar span{display:block;height:100%;background:linear-gradient(120deg,#F59E0B,#EA580C);border-radius:999px}
+.kelas-count{font-weight:800;font-size:.8rem;min-width:24px;text-align:right;color:var(--ink)}
+
+/* kredit pembuat */
+.side-credit{font-size:.62rem;color:var(--muted);padding:12px 14px 4px;letter-spacing:.03em;border-top:1px dashed #F0E4BE;margin-top:6px}
+.side-credit b{color:var(--amber-deep);font-weight:800}
+.form-credit{text-align:center;font-size:.63rem;color:var(--muted);margin:14px 0 2px;letter-spacing:.03em}
+.form-credit b{color:var(--amber-deep);font-weight:800}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ LAYAR LOGIN / DAFTAR ═══════════════ -->
+<div id="authScreen" class="auth-screen">
+  <!-- Panel kiri: branding -->
+  <div class="auth-hero">
+    <div class="brand-row">
+      <img class="brand-mark" src="logo-kecil.webp" alt="Logo MESINBOOK — Booking Fasilitas Teknik Mesin">
+      <div>
+        <div class="brand-name">MESIN<em>BOOK</em></div>
+        <div class="brand-tag">Booking Fasilitas Teknik Mesin</div>
+      </div>
+    </div>
+
+    <div class="hero-mid">
+      <span class="hero-kicker"><span class="dot"></span>MESINBOOK · FASILITAS TEKNIK MESIN</span>
+      <h1>Pinjam LCD &amp; Ruangan,<br><span class="hl">semua dalam satu booking.</span></h1>
+            <p>Tanpa antre dan tanpa ribet — isi satu formulir, LCD proyektor dan ruangan langsung tercatat. Status terpantau langsung; pengembalian diverifikasi admin.</p>
+      <ul class="hero-bullets">
+        <li><span class="tick"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 10"/></svg></span>Satu formulir untuk LCD <b>sekaligus</b> ruangan</li>
+        <li><span class="tick"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 10"/></svg></span>Masuk dengan akun kelas (mahasiswa) atau akun Admin</li>
+        <li><span class="tick"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 10"/></svg></span>Ruang &amp; LCD kembali <b>Tersedia</b> setelah diverifikasi admin</li>
+        <li><span class="tick"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 10"/></svg></span>Laporan &amp; cetak PDF seluruh transaksi</li>
+      </ul>
+    </div>
+
+    <div class="hero-foot">
+      <span>&copy; 2026 MESINBOOK · Teknik Mesin</span>
+      <span>Inventaris tersinkron <code>Cloud Firestore</code></span>
+    </div>
+  </div>
+
+  <!-- Panel kanan: form -->
+  <div class="auth-panel">
+    <div class="auth-card">
+      <div class="notice-banner danger hidden" id="configWarning" style="margin-bottom:14px" role="alert">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Firebase belum dikonfigurasi. Buka <b>firebase-config.js</b> di folder aplikasi, isi dengan config project Firebase kamu, lalu muat ulang halaman ini.</span>
+      </div>
+      <h2 id="authTitle">Login Admin</h2>
+      <p class="sub" id="authSub">Masuk dengan akun kelas (Mahasiswa) atau akun Admin.</p>
+
+      <!-- FORM LOGIN -->
+      <form id="formLogin" novalidate>
+        <div class="field">
+          <label for="loginUsername">Username</label>
+          <div class="input-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4.5"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+            <input class="plain-input" type="text" id="loginUsername" placeholder="mis. admin" autocomplete="username" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <div class="input-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input class="plain-input" type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
+            <button type="button" class="toggle-pass" data-toggle-pass="loginPassword" aria-label="Tampilkan password">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:4px">
+          <div style="display:flex;justify-content:flex-end">
+            <button type="button" class="link-btn" id="btnForgotPassword">Lupa password?</button>
+          </div>
+        </div>
+        <div class="error-text" id="loginError" role="alert"></div>
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top:10px">
+          Masuk
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="14 6 20 12 14 18"/></svg>
+        </button>
+        <div class="demo-hint" style="background:#EFF6FF;border-color:#93C5FD;color:#1E40AF">
+          <b>Dua jenis akun.</b><br>
+          Akun kelas (mahasiswa) &amp; akun Admin bisa masuk di sini.
+        </div>
+        <p class="form-credit">Created by <b>Freddiansyah Saputra</b></p>
+      </form>
+
+      <!-- PANEL Lupa Password -->
+      <form id="formReset" class="hidden" novalidate>
+        <div class="field">
+          <label for="resetEmail">Email Akun Kamu <span class="req">*</span></label>
+          <input class="plain-input" type="email" id="resetEmail" placeholder="email yang kamu pakai saat daftar" autocomplete="email" required>
+          <div class="hint">Kami kirim tautan untuk membuat password baru ke email ini.</div>
+        </div>
+        <div class="error-text" id="resetError" role="alert"></div>
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top:8px">
+          Kirim Link Reset Password
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+        <button type="button" class="link-btn" id="btnBackToLogin" style="margin:14px auto 0;display:block">← Kembali ke Login Admin</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ APLIKASI UTAMA ═══════════════ -->
+<div id="appScreen" class="app-screen hidden">
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Navigasi utama">
+    <div class="brand-row">
+      <img class="brand-mark" src="logo-kecil.webp" alt="Logo MESINBOOK">
+      <div>
+        <div class="brand-name">MESIN<em>BOOK</em></div>
+        <div class="brand-tag">Booking Fasilitas Teknik Mesin</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-label">Menu</div>
+      <button class="nav-item active" data-view="pinjam">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        Peminjaman
+      </button>
+      <button class="nav-item" data-view="pengembalian">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>
+        Pengembalian
+      </button>
+      <button class="nav-item member-only" data-view="pinjaman-saya">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z"/></svg>
+        Pinjaman Saya
+      </button>
+      <div class="nav-label admin-only">Administrasi</div>
+      <button class="nav-item" data-view="dashboard">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item admin-only" data-view="proyektor">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="2.5"/><circle cx="9" cy="12.5" r="2.6"/><path d="M15 10.5h4M15 14.5h4"/></svg>
+        Data Proyektor
+      </button>
+      <button class="nav-item admin-only" data-view="ruang-data">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="15" cy="12" r="1"/></svg>
+        Data Ruang
+      </button>
+      <button class="nav-item admin-only" data-view="peminjaman">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
+        Transaksi
+      </button>
+      <button class="nav-item admin-only" data-view="laporan">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+        Laporan
+      </button>
+      <button class="nav-item admin-only" data-view="pengguna">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Pengguna
+      </button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <button class="side-action hide-guest" id="btnMyAccount">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        Akun Saya
+      </button>
+      <button class="side-action danger hide-guest" id="btnLogout">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Keluar
+      </button>
+      <button class="side-action" id="btnOpenAdminLogin">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Login Admin
+      </button>
+      <div class="side-credit">Created by <b>Freddiansyah Saputra</b></div>
+    </div>
+  </aside>
+
+  <!-- Konten utama -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="icon-btn" id="btnHamburger" aria-label="Buka menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </button>
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSub">Ringkasan peminjaman fasilitas</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="user-chip">
+          <div class="avatar" id="avatarInitial">A</div>
+          <div class="user-meta">
+            <div class="user-name" id="chipName">Administrator</div>
+            <span class="role-badge admin" id="chipRole">Admin</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+            <!-- VIEW: PEMINJAMAN (SATU PAKET: LCD & RUANG) -->
+      <section class="view active" id="view-pinjam" aria-label="Peminjaman">
+        <form id="formPaketPinjam" class="card" novalidate>
+          <div class="card-head">
+            <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Peminjaman Satu Paket (LCD &amp; Ruangan)</h3>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <label for="paketNama">Nama Lengkap <span class="req">*</span> <span style="font-weight:500;color:var(--muted)">(huruf besar)</span></label>
+              <input class="plain-input" type="text" id="paketNama" placeholder="MIS. AL RAFIFI" autocomplete="name" required>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="paketNim">NIM <span class="req">*</span></label>
+                <input class="plain-input" type="text" id="paketNim" placeholder="mis. 230101001" autocomplete="off" inputmode="numeric" maxlength="9" required>
+              </div>
+              <div class="field">
+                <label for="paketKelas">Kelas <span class="req">*</span> <span style="font-weight:500;color:var(--muted)">(huruf besar)</span></label>
+                <input class="plain-input" type="text" id="paketKelas" placeholder="mis. TI-2A" autocomplete="off" required>
+              </div>
+            </div>
+            <div class="field">
+              <label for="paketMataKuliah">Mata Kuliah <span class="req">*</span> <span style="font-weight:500;color:var(--muted)">(huruf besar)</span></label>
+              <input class="plain-input" type="text" id="paketMataKuliah" placeholder="mis. PEMROGRAMAN WEB" autocomplete="off" required>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="paketLcd">Nama LCD <span class="req">*</span></label>
+                <select class="plain-input" id="paketLcd" required>
+                  <option value="">-- Pilih LCD yang tersedia --</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="paketRuang">Nama Ruang <span class="req">*</span></label>
+                <select class="plain-input" id="paketRuang" required>
+                  <option value="">-- Pilih Ruangan yang tersedia --</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="paketTgl">Tanggal Pinjam <span class="req">*</span></label>
+                <input class="plain-input" type="date" id="paketTgl" required>
+              </div>
+              <div class="field">
+                <label for="paketJam">Jam Pinjam <span class="req">*</span></label>
+                <input class="plain-input" type="time" id="paketJam" required>
+              </div>
+            </div>
+            <div class="modal-foot" style="padding:0;margin-top:6px">
+              <button type="submit" class="btn btn-primary" style="width:100%">Ajukan Peminjaman</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+<!-- VIEW: PENGEMBALIAN (GABUNGAN) -->
+      <section class="view" id="view-pengembalian" aria-label="Pengembalian">
+        <form id="formPengembalianCari" class="card" style="padding:18px 20px;margin-bottom:18px">
+          <label for="pengembalianQuery" style="font-size:.8rem;font-weight:700;letter-spacing:.03em;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:8px">Daftar Semua Peminjaman (LCD &amp; Ruang)</label>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <input class="plain-input" type="text" id="pengembalianQuery" placeholder="Kosongkan untuk melihat semua, atau ketik nama / NIM / kelas / mata kuliah / item" autocomplete="off" style="flex:1;min-width:220px" aria-label="Cari">
+            <button type="submit" class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>Cari</button>
+          </div>
+          <p class="hint" style="margin-top:10px;margin-bottom:0">Semua riwayat peminjaman LCD &amp; ruangan tampil di bawah. Gunakan kolom di atas untuk menyaring (opsional).</p>
+        </form>
+        <div class="card">
+          <div class="card-head">
+            <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>Daftar Semua Peminjaman</h3>
+            <span class="count-pill" id="pengembalianCount">0</span>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-scroll">
+              <table aria-label="Daftar pengembalian LCD dan ruangan">
+                <thead><tr><th>Nama Lengkap</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Tanggal Pinjam</th><th>Jam Pinjam</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+                <tbody id="pengembalianBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-pinjaman-saya" aria-label="Pinjaman Saya">
+        <div class="card">
+          <div class="card-head">
+            <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z"/></svg>Riwayat Pinjaman Kelas Anda</h3>
+            <span class="count-pill" id="myLoanCount">0</span>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-scroll">
+              <table aria-label="Riwayat pinjaman kelas Anda">
+                <thead><tr><th>Nama Lengkap</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th></tr></thead>
+                <tbody id="myLoanBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ─────── VIEW: DASHBOARD ─────── -->
+
+      <section class="view" id="view-dashboard" aria-label="Dashboard">
+        <div class="stats-grid" id="statCards"></div>
+        <div class="panel-grid">
+          <div class="card">
+            <div class="card-head">
+              <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 14.5 14"/></svg>Aktivitas Terakhir</h3>
+            </div>
+            <div class="card-body" id="recentLoans"></div>
+          </div>
+          <div class="card admin-only">
+            <div class="card-head">
+              <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Peminjaman per Kelas</h3>
+            </div>
+            <div class="card-body" id="statPerKelas"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────── VIEW: DATA PROYEKTOR ─────── -->
+      <section class="view" id="view-proyektor" aria-label="Data Proyektor">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+            <input type="text" id="projSearch" placeholder="Cari kode atau nama unit." aria-label="Cari proyektor">
+          </div>
+          <select class="select-input" id="projFilter" aria-label="Filter status">
+            <option value="semua">Semua status</option>
+            <option value="tersedia">Tersedia</option>
+            <option value="dipinjam">Dipinjam</option>
+            <option value="maintenance">Maintenance</option>
+          </select>
+          <button class="btn btn-ghost admin-only hidden" id="btnSeedUnits" title="Tambahkan 8 unit contoh ke database">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Muat 8 Unit Contoh
+          </button>
+          <button class="btn btn-dark admin-only" id="btnAddProjector">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Unit
+          </button>
+        </div>
+        <div class="table-wrap"><div class="table-scroll">
+          <table aria-label="Daftar LCD proyektor">
+            <thead><tr>
+              <th>Kode</th><th>Unit</th><th>Status</th><th style="text-align:right">Aksi</th>
+            </tr></thead>
+            <tbody id="projectorTableBody"></tbody>
+          </table>
+        </div></div>
+      </section>
+
+      <!-- ─────── VIEW: PEMINJAMAN ─────── -->
+      <section class="view" id="view-ruang-data" aria-label="Data Ruang">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+            <input type="text" id="roomAdminSearch" placeholder="Cari kode atau nama ruang." aria-label="Cari ruangan">
+          </div>
+          <select class="select-input" id="roomAdminFilter" aria-label="Filter status">
+            <option value="semua">Semua status</option>
+            <option value="tersedia">Tersedia</option>
+            <option value="dipinjam">Dipinjam</option>
+            <option value="maintenance">Maintenance</option>
+          </select>
+          <button class="btn btn-dark admin-only" id="btnAddRoom">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Ruangan
+          </button>
+        </div>
+        <div class="table-wrap"><div class="table-scroll">
+          <table aria-label="Daftar ruangan">
+            <thead><tr>
+              <th>Kode</th><th>Ruang</th><th>Kapasitas</th><th>Status</th><th style="text-align:right">Aksi</th>
+            </tr></thead>
+            <tbody id="roomAdminTableBody"></tbody>
+          </table>
+        </div></div>
+      </section>
+
+      <section class="view" id="view-peminjaman" aria-label="Peminjaman">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+            <input type="text" id="loanSearch" placeholder="Cari unit atau nama peminjam…" aria-label="Cari transaksi">
+          </div>
+        </div>
+        <div class="pill-group" id="loanPills">
+          <button class="pill active" data-loan-filter="semua">Semua<span class="n" id="cntAll">0</span></button>
+          <button class="pill" data-loan-filter="dipinjam">Dipinjam<span class="n" id="cntDipinjam">0</span></button>
+          <button class="pill" data-loan-filter="dikembalikan">Dikembalikan<span class="n" id="cntDikembalikan">0</span></button>
+        </div>
+        <div class="table-wrap"><div class="table-scroll">
+          <table aria-label="Daftar transaksi peminjaman">
+            <thead><tr>
+              <th>Nama Peminjam</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th><th style="text-align:right">Aksi</th>
+            </tr></thead>
+            <tbody id="loanTableBody"></tbody>
+          </table>
+        </div></div>
+      </section>
+
+      <!-- ─────── VIEW: LAPORAN (ADMIN) ─────── -->
+      <section class="view" id="view-laporan" aria-label="Laporan">
+        <div class="card">
+          <div class="card-head">
+            <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7 3 17 3 21 7 21 21 3 21 3 3"/><path d="M9 3v5h6V3"/></svg>Laporan Peminjaman &amp; Pengembalian</h3>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost btn-sm" id="btnExportReport">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export CSV
+              </button>
+              <button class="btn btn-dark btn-sm" id="btnPrintReport">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Cetak / PDF
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="toolbar" style="margin-bottom:4px">
+              <div class="field" style="margin:0">
+                <label for="reportFrom" style="font-size:.72rem">Dari tanggal</label>
+                <input class="plain-input" type="date" id="reportFrom">
+              </div>
+              <div class="field" style="margin:0">
+                <label for="reportTo" style="font-size:.72rem">Sampai tanggal</label>
+                <input class="plain-input" type="date" id="reportTo">
+              </div>
+              <div class="field" style="margin:0">
+                <label for="reportStatus" style="font-size:.72rem">Status</label>
+                <select class="select-input" id="reportStatus" style="width:100%">
+                  <option value="semua">Semua transaksi</option>
+                  <option value="dipinjam">Masih dipinjam</option>
+                  <option value="dikembalikan">Sudah dikembalikan</option>
+                  <option value="menunggu_verifikasi">Menunggu verifikasi</option>
+                </select>
+              </div>
+            </div>
+            <div class="report-summary" id="reportSummary"></div>
+            <div class="table-scroll" style="border:1px solid var(--line);border-radius:12px">
+              <table aria-label="Tabel laporan">
+                <thead><tr>
+                  <th>No</th><th>Nama Peminjam</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th><th style="text-align:right">Aksi</th>
+                </tr></thead>
+                <tbody id="reportTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────── VIEW: PENGGUNA (ADMIN) ─────── -->
+      <section class="view" id="view-pengguna" aria-label="Pengguna">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+            <input type="text" id="userSearch" placeholder="Cari nama, username, email, NIM/NIP, atau kelas…" aria-label="Cari pengguna">
+          </div>
+          <button class="btn btn-ghost" id="btnImportUsers">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Impor Excel
+          </button>
+          <button class="btn btn-dark" id="btnAddUser">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7.5" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            Tambah Pengguna
+          </button>
+        </div>
+        <div class="table-wrap"><div class="table-scroll">
+          <table aria-label="Daftar akun terdaftar">
+            <thead><tr>
+              <th>#</th><th>Nama</th><th>Username</th><th>Tipe</th><th>Email</th><th>NIM / NIP</th><th>Kelas</th><th>Peran</th><th>Terdaftar</th><th style="text-align:right">Aksi</th>
+            </tr></thead>
+            <tbody id="userTableBody"></tbody>
+          </table>
+        </div></div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: TAMBAH / EDIT PROYEKTOR ═══════════════ -->
+<div class="modal-overlay" id="projectorModal" role="dialog" aria-modal="true" aria-labelledby="projectorModalTitle">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="projectorModalTitle">Tambah Unit Proyektor</h3>
+      <button class="icon-btn" data-close-modal="projectorModal" aria-label="Tutup"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+    </div>
+    <form id="formProjector" novalidate>
+      <div class="modal-body">
+        <input type="hidden" id="projId">
+        <div class="field">
+          <label for="projKode">Kode Unit <span class="req">*</span></label>
+          <input class="plain-input" type="text" id="projKode" placeholder="LCD-009" required>
+        </div>
+        <div class="field">
+          <label for="projNama">Nama / Merk Unit <span class="req">*</span></label>
+          <input class="plain-input" type="text" id="projNama" placeholder="mis. Epson EB-X41" required>
+        </div>
+        <div class="field" style="margin-bottom:4px">
+          <label for="projStatus">Status</label>
+          <select class="plain-input" id="projStatus">
+            <option value="tersedia">Tersedia</option>
+            <option value="maintenance">Maintenance / Tidak Dipakai</option>
+          </select>
+          <div class="hint" id="projStatusHint">Status "Dipinjam" diatur otomatis oleh transaksi peminjaman.</div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close-modal="projectorModal">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Unit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: TAMBAH / EDIT RUANGAN ============ -->
+<div class="modal-overlay" id="roomModal" role="dialog" aria-modal="true" aria-labelledby="roomModalTitle">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="roomModalTitle">Tambah Ruangan</h3>
+      <button class="icon-btn" data-close-modal="roomModal" aria-label="Tutup"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+    </div>
+    <form id="formRoom" novalidate>
+      <div class="modal-body">
+        <input type="hidden" id="roomId">
+        <div class="form-row">
+          <div class="field">
+            <label for="roomKode">Kode Ruang <span class="req">*</span></label>
+            <input class="plain-input" type="text" id="roomKode" placeholder="RUANG-001" required>
+          </div>
+          <div class="field">
+            <label for="roomKapasitas">Kapasitas (orang)</label>
+            <input class="plain-input" type="number" id="roomKapasitas" placeholder="mis. 30" min="0" max="1000" inputmode="numeric">
+          </div>
+        </div>
+        <div class="field">
+          <label for="roomNama">Nama Ruangan <span class="req">*</span></label>
+          <input class="plain-input" type="text" id="roomNama" placeholder="mis. Ruang Rapat Utama" required>
+        </div>
+        <div class="field" style="margin-bottom:4px">
+          <label for="roomStatus">Status</label>
+          <select class="plain-input" id="roomStatus">
+            <option value="tersedia">Tersedia</option>
+            <option value="maintenance">Maintenance / Tidak Dipakai</option>
+          </select>
+          <div class="hint" id="roomStatusHint">Status "Dipinjam" diatur otomatis oleh transaksi peminjaman.</div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close-modal="roomModal">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Ruangan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: IMPOR AKUN DARI EXCEL ============ -->
+<div class="modal-overlay" id="importModal" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head">
+      <h3 id="importModalTitle">Impor Akun dari Excel</h3>
+      <button class="icon-btn" data-close-modal="importModal" aria-label="Tutup"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p class="hint" style="margin-top:0">Upload file <b>.xlsx</b> atau <b>.csv</b> dengan kolom: <b>NAMA, USERNAME, TIPE PENGGUNA, NIM, KELAS, PERAN, PASSWORD</b>.<br>Kolom <b>PASSWORD</b> opsional — isi untuk memakai password dari file, atau kosongkan untuk dibuat acak otomatis (min. 6 karakter).<br><b>Email tidak perlu diverifikasi</b>. Username &amp; email yang sudah dipakai akan <b>ditimpa</b> (profil akun lama diperbarui — password &amp; email lama tidak berubah; untuk mengganti password gunakan tombol <b>Kirim Reset Password</b> di Edit Pengguna).</p>
+      <input type="file" id="importFile" class="plain-input" accept=".xlsx,.xls,.csv" style="padding:10px">
+      <div class="error-text" id="importError" role="alert"></div>
+      <div class="table-scroll" id="importPreviewWrap" style="max-height:260px;overflow:auto;margin-top:8px;display:none">
+        <table><thead><tr><th>Username</th><th>Nama</th><th>Kelas</th><th>Peran</th><th>Status</th></tr></thead><tbody id="importPreview"></tbody></table>
+      </div>
+      <p class="hint" id="importCount" style="margin-top:6px"></p>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-ghost" data-close-modal="importModal">Batal</button>
+      <button type="button" class="btn btn-primary" id="btnRunImport" disabled>Buat Semua Akun</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="importResultModal" role="dialog" aria-modal="true" aria-labelledby="importResultTitle">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head">
+      <h3 id="importResultTitle">Hasil Impor — Catat Password</h3>
+      <button class="icon-btn" data-close-modal="importResultModal" aria-label="Tutup"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p class="hint" style="margin-top:0;color:var(--amber-deep)"><b>Password hanya tampil SEKALI di layar ini.</b> Unduh CSV / salin ke tempat aman untuk dibagikan ke mahasiswa. Jangan simpan password di aplikasi.</p>
+      <div class="table-scroll" style="max-height:300px;overflow:auto">
+        <table><thead><tr><th>Username</th><th>Password</th><th>Kelas</th><th>Status</th></tr></thead><tbody id="importResultBody"></tbody></table>
+      </div>
+      <p class="hint" id="importResultSummary" style="margin-top:8px"></p>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-ghost" id="btnCopyCreds">Salin ke Clipboard</button>
+      <button type="button" class="btn btn-primary" id="btnDownloadCreds">Unduh CSV</button>
+      <button type="button" class="btn btn-primary" data-close-modal="importResultModal">Selesai</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: KONFIRMASI GENERIK ═══════════════ -->
+<div class="modal-overlay" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="modal modal-sm">
+    <div class="modal-head">
+      <h3 id="confirmTitle">Konfirmasi</h3>
+      <button class="icon-btn" data-close-modal="confirmModal" aria-label="Tutup"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body"><p id="confirmMessage" style="font-size:.9rem;line-height:1.6;color:#44403C"></p></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close-modal="confirmModal">Batal</button>
+      <button class="btn btn-danger" id="confirmYesBtn">Ya, Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: AKUN SAYA ═══════════════ -->
+<div class="modal-overlay" id="accountModal" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
+  <div class="modal modal-sm">
+    <div class="modal-head">
+      <h3 id="accountModalTitle">Akun Saya</h3>
+      <button class="icon-btn" data-close-modal="accountModal" aria-label="Tutup"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+    </div>
+    <form id="formAccount" novalidate>
+      <div class="modal-body">
+        <div class="field">
+          <label for="accUsername">Username <span class="hint" style="display:inline;font-weight:400">(tidak bisa diubah)</span></label>
+          <input class="plain-input" type="text" id="accUsername" disabled style="opacity:.6">
+        </div>
+        <div class="field">
+          <label for="accEmail">Email <span class="hint" style="display:inline;font-weight:400">(tidak bisa diubah di sini)</span></label>
+          <input class="plain-input" type="email" id="accEmail" disabled style="opacity:.6">
+        </div>
+        <div class="field">
+          <label for="accNama">Nama Lengkap <span class="req">*</span> <span style="font-weight:500;color:var(--muted)">(huruf besar)</span></label>
+          <input class="plain-input" type="text" id="accNama" required>
+        </div>
+        <div class="field">
+          <label for="accTipe">Tipe Pengguna</label>
+          <select class="plain-input" id="accTipe">
+            <option value="mahasiswa">Mahasiswa</option>
+            <option value="pegawai">Pegawai</option>
+          </select>
+        </div>
+        <div class="form-row" id="accMahasiswaFields">
+          <div class="field">
+            <label for="accNim">NIM</label>
+            <input class="plain-input" type="text" id="accNim" placeholder="mis. 230101001" autocomplete="off" inputmode="numeric" maxlength="9">
+          </div>
+          <div class="field">
+            <label for="accKelas">Kelas</label>
+            <input class="plain-input" type="text" id="accKelas" placeholder="mis. TI-2A" autocomplete="off">
+          </div>
+        </div>
+        <div class="field hidden" id="accPegawaiFields">
+          <label for="accNip">NIP / NIK</label>
+          <input class="plain-input" type="text" id="accNip" placeholder="mis. 198501012010011001" autocomplete="off">
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="accPassword">Password Baru</label>
+            <input class="plain-input" type="password" id="accPassword" placeholder="kosongkan jika tetap" autocomplete="new-password">
+          </div>
+          <div class="field">
+            <label for="accConfirm">Ulangi Password Baru</label>
+            <input class="plain-input" type="password" id="accConfirm" placeholder="ketik ulang" autocomplete="new-password">
+          </div>
+        </div>
+        <div class="hint" style="margin-bottom:6px">Password minimal 6 karakter. Kosongkan kedua kolom untuk tidak mengganti password.</div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close-modal="accountModal">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: TAMBAH PENGGUNA (ADMIN) ═══════════════ -->
+<div class="modal-overlay" id="userModal" role="dialog" aria-modal="true" aria-labelledby="userModalTitle">
+  <div class="modal modal-sm">
+    <div class="modal-head">
+      <h3 id="userModalTitle">Tambah Pengguna</h3>
+      <button class="icon-btn" data-close-modal="userModal" aria-label="Tutup"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+    </div>
+    <form id="formUser" novalidate>
+      <input type="hidden" id="newUserId">
+      <div class="modal-body">
+        <div class="field">
+          <label for="newUserNama">Nama Lengkap <span class="req">*</span> <span style="font-weight:500;color:var(--muted)">(huruf besar)</span></label>
+          <input class="plain-input" type="text" id="newUserNama" placeholder="mis. Al Rafifi" required>
+        </div>
+        <div class="field">
+          <label for="newUserEmail">Email <span class="req">*</span></label>
+          <input class="plain-input" type="email" id="newUserEmail" placeholder="mis. 2301010012@siswa.sekolah.sch.id" autocomplete="off" required>
+          <div class="hint" id="newUserEmailHint">Verifikasi email hanya untuk akun <b>Admin</b>. Akun kelas (mahasiswa) bisa masuk dengan username &amp; password dari admin.</div>
+        </div>
+        <div class="field">
+          <label for="newUserUsername">Username <span class="req">*</span></label>
+          <input class="plain-input" type="text" id="newUserUsername" placeholder="min. 3 karakter, huruf kecil/angka/._-" autocomplete="off" required>
+        </div>
+        <div class="field">
+          <label for="newUserTipe">Tipe Pengguna <span class="req">*</span></label>
+          <select class="plain-input" id="newUserTipe">
+            <option value="mahasiswa">Mahasiswa</option>
+            <option value="pegawai">Pegawai</option>
+          </select>
+        </div>
+        <div class="form-row" id="newUserMahasiswaFields">
+          <div class="field">
+            <label for="newUserNim">NIM <span class="req" id="newUserNimReq">*</span></label>
+            <input class="plain-input" type="text" id="newUserNim" placeholder="mis. 230101001" autocomplete="off" inputmode="numeric" maxlength="9">
+          </div>
+          <div class="field">
+            <label for="newUserKelas">Kelas <span class="req" id="newUserKelasReq">*</span></label>
+            <input class="plain-input" type="text" id="newUserKelas" placeholder="mis. TI-2A" autocomplete="off">
+          </div>
+        </div>
+        <div class="field hidden" id="newUserPegawaiFields">
+          <label for="newUserNip">NIP / NIK <span class="req" id="newUserNipReq">*</span></label>
+          <input class="plain-input" type="text" id="newUserNip" placeholder="mis. 198501012010011001" autocomplete="off">
+        </div>
+        <div class="hint" style="margin-top:-6px;margin-bottom:12px">Wajib untuk akun <b>User</b>; boleh dikosongkan untuk akun <b>Admin</b>.</div>
+        <div class="form-row">
+          <div class="field" id="newUserPasswordField">
+            <label for="newUserPassword">Password <span class="req">*</span></label>
+            <input class="plain-input" type="password" id="newUserPassword" placeholder="min. 6 karakter" autocomplete="new-password">
+          </div>
+          <div class="field">
+            <label for="newUserRole">Peran <span class="req">*</span></label>
+            <select class="plain-input" id="newUserRole">
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="error-text" id="userModalError" role="alert"></div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close-modal="userModal">Batal</button>
+        <button type="button" class="btn btn-ghost hidden" id="btnSendReset">Kirim Reset Password</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmitUser">Tambahkan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toastWrap" aria-live="polite"></div>
+
+<!-- Area cetak laporan -->
+<div id="printArea" aria-hidden="true"></div>
+
+<script>
+  // Penampil error global: mencegah halaman "mati diam" (semua tombol tidak merespons).
+  // Menampilkan pesan error asli di banner atas halaman.
+  window.addEventListener('error', function (e) {
+    var w = document.getElementById('configWarning');
+    if (w) {
+      var msg = String((e && (e.message || e.error)) || 'Error tidak dikenal');
+      w.innerHTML = '<span>Terjadi error aplikasi: <b>' + msg.replace(/</g, '&lt;').replace(/>/g, '&gt;').slice(0, 300) + '</b></span>';
+      w.classList.remove('hidden');
+    }
+  }, true);
+  window.addEventListener('unhandledrejection', function (e) {
+    var w = document.getElementById('configWarning');
+    if (w) {
+      var msg = String((e && e.reason && (e.reason.code || e.reason.message)) || (e && e.reason) || 'Error tidak dikenal');
+      w.innerHTML = '<span>Gagal memuat data: <b>' + msg.replace(/</g, '&lt;').replace(/>/g, '&gt;').slice(0, 300) + '</b></span>';
+      w.classList.remove('hidden');
+    }
+  });
+</script>
+<script type="module">
+'use strict';
+/* =====================================================================
+   MESINBOOK — Versi WEB (Firebase: Authentication + Cloud Firestore)
+   Semua perangkat melihat data yang sama. Semua operasi lewat server.
+   Sekali setup: isi config di firebase-config.js (lihat README-WEB.md).
+   ===================================================================== */
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {
+  getAuth, onAuthStateChanged, signInWithEmailAndPassword,
+  createUserWithEmailAndPassword, signOut, updatePassword,
+  sendEmailVerification, sendPasswordResetEmail
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {
+  getFirestore, collection, doc, getDoc, setDoc, addDoc, query, where, getDocs,
+  updateDoc, deleteDoc, onSnapshot, runTransaction, writeBatch
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { firebaseConfig } from './firebase-config.js';
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+const isConfigured = () => firebaseConfig.apiKey && !String(firebaseConfig.apiKey).includes('ISI_');
+const secondaryAuth = () => getAuth(initializeApp(firebaseConfig, 'secondary-' + Date.now()));
+
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+const pad = n => String(n).padStart(2, '0');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* ---------- tanggal & jam ---------- */
+// nilai untuk input datetime-local: "YYYY-MM-DDTHH:MM"
+function padTime(d){ return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function dateOnlyFromOffset(offsetDays){
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function datetimeFromDate(d){
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${padTime(d)}`;
+}
+const todayISO = () => dateOnlyFromOffset(0);          // tanggal saja
+const nowLocalValue = () => datetimeFromDate(new Date()); // tanggal + jam sekarang
+
+// parsing aman "YYYY-MM-DD" atau "YYYY-MM-DDTHH:MM" sebagai waktu LOKAL
+function parseLocal(v){
+  if (!v) return new Date(NaN);
+  const [datePart, timePart = '00:00'] = String(v).split('T');
+  const [y, m, d] = datePart.split('-').map(Number);
+  const [H, M] = timePart.split(':').map(Number);
+  return new Date(y, (m || 1) - 1, d || 1, H || 0, M || 0);
+}
+/* NIM: hanya angka, maksimal 9 digit */
+const NIM_RE = /^\d{1,9}$/;
+function nimValid(v){ return NIM_RE.test(String(v || '')); }
+
+function fmtDate(v){
+  if (!v) return '—';
+  const d = parseLocal(v);
+  if (isNaN(d)) return '—';
+  const tanggal = d.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+  if (String(v).length > 10){
+    const jam = d.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }).replace('.', ':');
+    return `${tanggal} · ${jam}`;
+  }
+  return tanggal;
+}
+
+/* ---------- data contoh unit (untuk admin, dimuat lewat tombol di Data Proyektor) ---------- */
+const UNIT_CONTOH = [
+  { kode: 'LCD-001', nama: 'Epson EB-X41', status: 'tersedia' },
+  { kode: 'LCD-002', nama: 'Epson EB-X05', status: 'tersedia' },
+  { kode: 'LCD-003', nama: 'ViewSonic PA503S', status: 'tersedia' },
+  { kode: 'LCD-004', nama: 'Acer X1323WHP', status: 'tersedia' },
+  { kode: 'LCD-005', nama: 'BenQ MS527', status: 'tersedia' },
+  { kode: 'LCD-006', nama: 'Infocus IN126x', status: 'maintenance' },
+  { kode: 'LCD-007', nama: 'Optoma HD243X', status: 'tersedia' },
+  { kode: 'LCD-008', nama: 'Epson EB-E01', status: 'tersedia' }
+];
+
+let state = { users: [], projectors: [], loans: [], rooms: [], roomLoans: [] };
+let currentUser = null;
+let currentView = 'dashboard';
+let confirmCallback = null;
+let loanFilter = 'semua';
+let unsubs = [];
+
+const userById = id => state.users.find(u => u.id === id);
+const projectorById = id => state.projectors.find(p => p.id === id);
+const roomById = id => state.rooms.find(r => r.id === id);
+const itemOf = l => l.jenis === 'ruang' ? roomById(l.roomId) : projectorById(l.projectorId);
+
+/* Langganan perubahan data secara live — semua perangkat tersinkron otomatis */
+function startSubscriptions(){
+  stopSubscriptions();
+  unsubs.push(onSnapshot(collection(db, 'projectors'), snap => {
+    state.projectors = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+    if (currentUser) renderAll();
+  }));
+  unsubs.push(onSnapshot(collection(db, 'loans'), snap => {
+    state.loans = snap.docs.map(d => ({ ...d.data(), id: d.id, jenis: 'lcd' }));
+    if (currentUser) renderAll();
+  }));
+  unsubs.push(onSnapshot(collection(db, 'rooms'), snap => {
+    state.rooms = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+    if (currentUser) renderAll();
+  }));
+  unsubs.push(onSnapshot(collection(db, 'room_loans'), snap => {
+    state.roomLoans = snap.docs.map(d => ({ ...d.data(), id: d.id, jenis: 'ruang' }));
+    if (currentUser) renderAll();
+  }));
+  if (currentUser && currentUser.role === 'admin'){
+    unsubs.push(onSnapshot(collection(db, 'users'), snap => {
+      state.users = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      if (currentUser){
+        const me = state.users.find(u => u.id === currentUser.id);
+        if (me) Object.assign(currentUser, me);
+        renderAll();
+      }
+    }));
+  } else {
+    state.users = [];
+  }
+}
+function stopSubscriptions(){ unsubs.forEach(u => u()); unsubs = []; }
+
+/* ---------- helper transaksi ---------- */
+const visibleLoans = () => [...state.loans];
+const visibleRoomLoans = () => [...state.roomLoans];
+const visibleMerged = () => [...visibleLoans(), ...visibleRoomLoans()];
+const borrowerName = l => l.borrowerNama || (userById(l.userId)?.nama) || '—';
+const borrowerId   = l => l.borrowerNim || l.borrowerNip || (userById(l.userId)?.nim) || (userById(l.userId)?.nip) || '—';
+const mataKuliah = l => l.mataKuliah || l.keperluan || '-';
+
+/* =====================================================================
+   TOAST
+   ===================================================================== */
+function showToast(message, type = 'success'){
+  const wrap = $('#toastWrap');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span class="t-dot"></span><span>${esc(message)}</span>`;
+  wrap.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transform='translateX(40px)'; setTimeout(() => el.remove(), 250); }, 4200);
+}
+
+/* =====================================================================
+   MODAL GENERIK
+   ===================================================================== */
+function openModal(id){ $('#' + id).classList.add('show'); document.body.style.overflow = 'hidden'; }
+function closeModal(id){ $('#' + id).classList.remove('show'); document.body.style.overflow = ''; }
+function openConfirm(title, messageHTML, confirmLabel, onConfirm){
+  $('#confirmTitle').textContent = title;
+  $('#confirmMessage').innerHTML = messageHTML;
+  $('#confirmYesBtn').textContent = confirmLabel || 'Ya, Lanjutkan';
+  confirmCallback = onConfirm;
+  openModal('confirmModal');
+}
+
+/* =====================================================================
+   AUTH
+   ===================================================================== */
+function switchAuthTab(tab){
+  // tab: 'login' | 'reset'
+  const isLogin = tab === 'login';
+  $('#formLogin').classList.toggle('hidden', !isLogin);
+  $('#formReset').classList.toggle('hidden', tab !== 'reset');
+  $('#authTitle').textContent = isLogin ? 'Login' : 'Atur ulang password';
+  $('#authSub').textContent =
+    isLogin ? 'Akun kelas (Mahasiswa) & akun Admin bisa masuk di sini.' :
+    'Masukkan email akun admin, kami kirim tautan reset password.';
+  $('#loginError').textContent = '';
+  $('#resetError').textContent = '';
+}
+
+function firebaseErrorMessage(err){
+  const code = err && err.code ? String(err.code) : '';
+  if (code.includes('auth/invalid-credential') || code.includes('auth/wrong-password') || code.includes('auth/user-not-found'))
+    return 'Username atau password salah. Coba lagi.';
+  if (code.includes('auth/invalid-email')) return 'Username tidak valid.';
+  if (code.includes('auth/email-already-in-use')) return 'Email sudah terdaftar. Pakai email lain atau masuk dengan akun itu.';
+  if (code.includes('auth/weak-password')) return 'Password terlalu lemah. Minimal 6 karakter.';
+  if (code.includes('auth/too-many-requests')) return 'Terlalu banyak percobaan. Coba lagi beberapa menit lagi.';
+  if (code.includes('auth/network-request-failed')) return 'Tidak ada koneksi internet. Periksa jaringan kamu.';
+  return 'Terjadi kesalahan. Coba lagi sebentar.';
+}
+
+async function handleLogin(e){
+  e.preventDefault();
+  if (!isConfigured()) return;
+  const username = $('#loginUsername').value.trim().toLowerCase();
+  const password = $('#loginPassword').value;
+  const errorEl = $('#loginError');
+  const btn = $('#formLogin button[type="submit"]');
+  errorEl.textContent = '';
+  btn.disabled = true;
+  try {
+    // cari email untuk username ini (username -> email)
+    const nameSnap = await getDoc(doc(db, 'usernames', username));
+    if (!nameSnap.exists()){
+      errorEl.textContent = 'Username atau password salah. Coba lagi.';
+      return;
+    }
+    const email = nameSnap.data().email;
+    await signInWithEmailAndPassword(auth, email, password);
+    // onAuthStateChanged yang menangani masuk ke aplikasi
+  } catch (err) {
+    errorEl.textContent = firebaseErrorMessage(err);
+    $('#loginPassword').value = '';
+    $('#loginPassword').focus();
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function handleReset(e){
+  e.preventDefault();
+  if (!isConfigured()) return;
+  const email = $('#resetEmail').value.trim();
+  const errorEl = $('#resetError');
+  const btn = $('#formReset button[type="submit"]');
+  errorEl.textContent = '';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return (errorEl.textContent = 'Format email tidak valid.');
+  btn.disabled = true;
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showToast('Kalau email terdaftar, link reset password sudah dikirim. Cek inbox/spam kamu.', 'info');
+    $('#formReset').reset();
+    switchAuthTab('login');
+  } catch (err) {
+    console.error(err);
+    errorEl.textContent = 'Gagal mengirim link reset. Periksa koneksi kamu lalu coba lagi.';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function logout(){
+  stopSubscriptions();
+  state = { users: [], projectors: [], loans: [], rooms: [], roomLoans: [] };
+  await signOut(auth);
+}
+
+function openAdminLogin(){
+  $('#appScreen').classList.add('hidden');
+  $('#authScreen').classList.remove('hidden');
+  switchAuthTab('login');
+}
+function showAuthScreen(){
+  openAdminLogin();
+}
+
+/* =====================================================================
+   MASUK KE APLIKASI
+   ===================================================================== */
+const PAGE_META = {
+  pinjam:      { title: 'Peminjaman',      sub: 'Ajukan peminjaman LCD & ruangan dalam satu formulir' },
+  pengembalian:{ title: 'Pengembalian',    sub: 'Daftar semua peminjaman LCD & ruang' },
+  'ruang-data':{ title: 'Data Ruang',      sub: 'Kelola ruangan yang tersedia dipinjam' },
+  dashboard:   { title: 'Dashboard',       sub: 'Ringkasan peminjaman fasilitas' },
+  proyektor:   { title: 'Data Proyektor',  sub: 'Kelola unit LCD proyektor yang tersedia' },
+  peminjaman:  { title: 'Transaksi',       sub: 'Semua transaksi peminjaman & pengembalian' },
+  laporan:     { title: 'Laporan',         sub: 'Rekap transaksi, bisa dicetak / simpan PDF' },
+  pengguna:    { title: 'Pengguna',        sub: 'Daftar akun yang terdaftar di sistem' },
+  'pinjaman-saya': { title: 'Pinjaman Saya', sub: 'Riwayat peminjaman kelas Anda' }
+};
+
+function enterApp(){
+  const user = currentUser;
+  const isAdmin = user.role === 'admin';
+  $('#authScreen').classList.add('hidden');
+  $('#appScreen').classList.remove('hidden');
+
+  // chip pengguna di topbar
+  const isMember = user.role === 'user';
+  const isFull = isAdmin || isMember;
+  $('#chipName').textContent = isFull ? user.nama : 'Pengunjung';
+  $('#avatarInitial').textContent = isFull ? user.nama.trim().charAt(0).toUpperCase() : 'P';
+  const roleEl = $('#chipRole');
+  roleEl.textContent = isAdmin ? 'Administrator' : (user.tipe === 'pegawai' ? 'Pegawai' : 'Mahasiswa');
+  roleEl.classList.toggle('admin', isAdmin);
+
+  // tampilkan/sembunyikan menu khusus admin
+  $$('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
+  $$('.admin-col').forEach(el => el.classList.toggle('hidden', !isAdmin));
+  $$('.hide-guest').forEach(el => el.classList.toggle('hidden', !isFull));
+  $$('.member-only').forEach(el => el.classList.toggle('hidden', isAdmin));
+  if (isMember && user.tipe === 'mahasiswa' && user.kelas){
+    const k = $('#paketKelas');
+    if (k && !k.value) k.value = String(user.kelas).toUpperCase();
+  }
+  $('#btnOpenAdminLogin').classList.toggle('hidden', isFull);
+
+  // default tanggal & jam pada formulir paket pinjam
+  if (isAdmin || true){
+    const d = $('#paketTgl');
+    if (d && !d.value){ d.value = dateOnlyFromOffset(0); d.min = dateOnlyFromOffset(0); }
+    const j = $('#paketJam');
+    if (j) j.value = padTime(new Date());
+  }
+
+  // filter laporan default: 30 hari terakhir (admin)
+  if (isAdmin){
+    $('#reportFrom').value = dateOnlyFromOffset(-30);
+    $('#reportTo').value = todayISO();
+  }
+
+  switchView('dashboard');
+  renderAll();
+}
+
+function switchView(view){
+  // pengunjung hanya boleh membuka 2 menu
+  if (!currentUser || (currentUser.role !== 'admin' && !['pinjam', 'pengembalian', 'dashboard', 'pinjaman-saya'].includes(view))) view = 'pinjam';
+  currentView = view;
+  $$('.view').forEach(v => v.classList.remove('active'));
+  $('#view-' + view).classList.add('active');
+  $$('.nav-item[data-view]').forEach(btn => btn.classList.toggle('active', btn.dataset.view === view));
+  $('#pageTitle').textContent = PAGE_META[view].title;
+  $('#pageSub').textContent = PAGE_META[view].sub;
+  $('#sidebar').classList.remove('open');
+  $('#sidebarOverlay').classList.remove('show');
+  window.scrollTo({ top: 0 });
+}
+
+/* =====================================================================
+   RENDER: DASHBOARD
+   ===================================================================== */
+function statusBadge(p){
+  if (p.status === 'tersedia')   return '<span class="badge tersedia">Tersedia</span>';
+  if (p.status === 'dipinjam')   return '<span class="badge dipinjam">Dipinjam</span>';
+  return '<span class="badge maintenance">Maintenance</span>';
+}
+function loanStatusBadge(loan){
+  if (loan.status === 'dikembalikan') return '<span class="badge dikembalikan">Dikembalikan</span>';
+  if (loan.status === 'menunggu_verifikasi') return '<span class="badge waiting">Menunggu Verifikasi</span>';
+  return '<span class="badge dipinjam">Dipinjam</span>';
+}
+
+function renderDashboard(){
+  const mine = currentUser.role === 'admin';
+  const totalUnit  = state.projectors.length;
+  const tersedia   = state.projectors.filter(p => p.status === 'tersedia').length;
+  const dipinjam   = state.projectors.filter(p => p.status === 'dipinjam').length;
+  const maintenance= state.projectors.filter(p => p.status === 'maintenance').length;
+  const ruangDipinjam = state.rooms.filter(r => r.status === 'dipinjam').length;
+  const ruangTersedia = state.rooms.filter(r => r.status === 'tersedia').length;
+
+  const myLoans    = visibleLoans();
+  const aktifSaya  = myLoans.filter(l => l.status === 'dipinjam').length;
+  const selesaiSaya= myLoans.filter(l => l.status === 'dikembalikan').length;
+
+  const icon = (p, cls) => `<div class="stat-icon ${cls}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg></div>`;
+  const iconBox  = '<rect x="2" y="7" width="20" height="11" rx="2.5"/><circle cx="9" cy="12.5" r="2.6"/>';
+  const iconDoor = '<rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="15" cy="12" r="1"/>';
+  const iconCheck= '<polyline points="20 6 9 17 4 10"/>';
+  const iconOut  = '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>';
+
+  const cards = mine
+    ? [
+        { label:'Total Unit',        value: totalUnit,     sub:`${maintenance} unit maintenance`,     icon: icon(iconBox,'dark')  },
+        { label:'Tersedia',          value: tersedia,      sub:'Siap dipinjam',                       icon: icon(iconCheck,'green') },
+        { label:'Sedang Dipinjam',   value: dipinjam,      sub:'Unit sedang keluar',                  icon: icon(iconOut,'amber')  },
+        { label:'Ruang Dipinjam',    value: ruangDipinjam, sub:'Ruangan sedang dipakai',              icon: icon(iconDoor,'amber') }
+      ]
+    : [
+        { label:'Peminjaman Aktif',  value: aktifSaya,     sub:'Unit yang sedang kamu pinjam',        icon: icon(iconOut,'amber')  },
+        { label:'Sudah Dikembalikan',value: selesaiSaya,   sub:'Total transaksi selesai',             icon: icon(iconCheck,'green') },
+        { label:'Unit Tersedia',     value: tersedia,      sub:'Bisa langsung dipinjam',              icon: icon(iconBox,'dark')   },
+        { label:'Ruang Tersedia',    value: ruangTersedia, sub:'Bisa langsung dipinjam',              icon: icon(iconDoor,'dark')  }
+      ];
+
+  $('#statCards').innerHTML = cards.map(c => `
+    <div class="stat-card">
+      <div class="stat-top"><span class="stat-label">${c.label}</span>${c.icon}</div>
+      <div class="stat-value">${c.value}</div>
+      <div class="stat-sub">${c.sub}</div>
+    </div>`).join('');
+
+  const perKelasEl = $('#statPerKelas');
+  if (perKelasEl && mine){
+    const mergedAll = mergedTransactions([...state.loans, ...state.roomLoans]);
+    const counts = new Map();
+    for (const l of mergedAll){
+      const k = String(l.borrowerKelas || '-').toUpperCase();
+      counts.set(k, (counts.get(k) || 0) + 1);
+    }
+    const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 8);
+    const max = sorted.length ? sorted[0][1] : 1;
+    perKelasEl.innerHTML = sorted.length === 0
+      ? '<div class="empty-state"><p>Belum ada data peminjaman.</p></div>'
+      : sorted.map(([kelas, n]) => `
+        <div class="kelas-row">
+          <span class="kelas-name">${esc(kelas)}</span>
+          <div class="kelas-bar"><span style="width:${Math.round(n / max * 100)}%"></span></div>
+          <span class="kelas-count">${n}</span>
+        </div>`).join('');
+  }
+
+  const recent = [...myLoans].sort((a, b) => String(b.tglPinjam).localeCompare(String(a.tglPinjam))).slice(0, 6);
+  $('#recentLoans').innerHTML = recent.length === 0
+    ? `<div class="empty-state"><p>Belum ada aktivitas peminjaman.</p></div>`
+    : recent.map(l => {
+        const p = projectorById(l.projectorId);
+        const done = l.status === 'dikembalikan';
+        const who = ` oleh ${esc(borrowerName(l))}`;
+        return `
+        <div class="recent-item">
+          <span class="recent-dot ${done ? 'done' : ''}"></span>
+          <div class="recent-info">
+            <div class="recent-title">${esc(p ? p.kode + ' - ' + p.nama : 'Unit terhapus')}</div>
+            <div class="recent-sub">${done ? 'Dikembalikan' : 'Dipinjam'}${who} &#183; ${fmtDate(l.tglPinjam)}</div>
+          </div>
+          ${loanStatusBadge(l)}
+        </div>`;
+      }).join('');
+}
+
+/* =====================================================================
+   RENDER: DATA PROYEKTOR
+   ===================================================================== */
+function renderProjectors(){
+  const q = ($('#projSearch').value || '').trim().toLowerCase();
+  const filter = $('#projFilter').value;
+  const isAdmin = currentUser.role === 'admin';
+  const seedBtn = $('#btnSeedUnits');
+  if (seedBtn) seedBtn.classList.toggle('hidden', !(isAdmin && state.projectors.length === 0));
+
+  const rows = state.projectors.filter(p => {
+    const matchQ = !q || [p.kode, p.nama].some(f => String(f || '').toLowerCase().includes(q));
+    const matchF = filter === 'semua' || p.status === filter;
+    return matchQ && matchF;
+  });
+
+  $('#projectorTableBody').innerHTML = rows.length === 0
+    ? `<tr><td colspan="4"><div class="empty-state"><p>Tidak ada unit yang cocok. Coba ubah kata pencarian / filter.</p></div></td></tr>`
+    : rows.map(p => `
+      <tr>
+        <td class="code-cell">${esc(p.kode)}</td>
+        <td><div class="unit-name">${esc(p.nama)}</div></td>
+        <td>${statusBadge(p)}</td>
+        <td>
+          <div class="row-actions">
+            ${p.status === 'tersedia'
+              ? `<button class="mini-btn amber" data-borrow="${p.id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Pinjam</button>`
+              : ''}
+            ${isAdmin ? `
+              <button class="mini-btn" data-edit="${p.id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L8 20l-5 1 1-5Z"/></svg>Edit</button>
+              <button class="mini-btn danger" data-delete="${p.id}" ${p.status === 'dipinjam' ? 'disabled title="Unit sedang dipinjam"' : ''}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Hapus</button>
+            ` : ''}
+          </div>
+        </td>
+      </tr>`).join('');
+}
+
+/* =====================================================================
+   RENDER: PEMINJAMAN
+   ===================================================================== */
+function renderLoanCounts(){
+  const loans = mergedTransactions(visibleMerged());
+  $('#cntAll').textContent = loans.length;
+  $('#cntDipinjam').textContent = loans.filter(l => l.status !== 'dikembalikan').length;
+  $('#cntDikembalikan').textContent = loans.filter(l => l.status === 'dikembalikan').length;
+}
+
+function jenisBadge(l){
+  return l.jenis === 'ruang'
+    ? '<span class="badge ruang">Ruang</span>'
+    : '<span class="badge lcd">LCD</span>';
+}
+const jenisLabel = l => l.jenis === 'ruang' ? 'Ruang' : 'LCD';
+const mergedStatusBadge = l => l.status === 'dikembalikan'
+  ? '<span class="badge dikembalikan">Dikembalikan</span>'
+  : l.status === 'menunggu_verifikasi'
+    ? '<span class="badge waiting">Menunggu Verifikasi</span>'
+    : '<span class="badge dipinjam">Dipinjam</span>';
+const trashIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+const hapusPaketBtnHTML = l => `<button class="mini-btn danger" data-del-paket="${l.anggota.map(a => a.jenis + ':' + a.id).join(',')}">${trashIcon}Hapus</button>`;
+// Gabungkan paket pinjaman LCD + Ruang yang dibuat dalam satu pengajuan (sama: nama, NIM, kelas, mata kuliah, waktu pinjam)
+const mergedTransactions = rows => {
+  const map = new Map();
+  for (const l of rows){
+    const key = [l.borrowerNama || '', l.borrowerNim || l.borrowerNip || '', l.borrowerKelas || '', mataKuliah(l), l.tglPinjam || ''].join('|');
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(l);
+  }
+  const out = [];
+  for (const g of map.values()){
+    const first = g[0];
+    const lcdM = g.filter(x => x.jenis === 'lcd');
+    const ruangM = g.filter(x => x.jenis === 'ruang');
+    const lcdText = lcdM.map(x => { const p = projectorById(x.projectorId); return p ? (p.kode + ' - ' + p.nama) : '-'; }).filter(Boolean).join(', ') || '-';
+    const ruangText = ruangM.map(x => { const r = roomById(x.roomId); return r ? (r.kode + ' - ' + r.nama) : '-'; }).filter(Boolean).join(', ') || '-';
+    const returnedArr = g.map(x => x.tglKembali).filter(Boolean).sort();
+    const allDikembalikan = g.every(x => x.status === 'dikembalikan');
+    const anyDipinjam = g.some(x => x.status === 'dipinjam');
+    out.push({
+      borrowerNama: first.borrowerNama,
+      borrowerNim: first.borrowerNim || first.borrowerNip || '',
+      borrowerKelas: first.borrowerKelas || '',
+      mataKuliah: mataKuliah(first),
+      lcdText, ruangText,
+      tglPinjam: first.tglPinjam,
+      tglKembali: allDikembalikan && returnedArr.length ? returnedArr.slice(-1)[0] : (returnedArr.slice(-1)[0] || ''),
+      status: allDikembalikan ? 'dikembalikan' : (anyDipinjam ? 'dipinjam' : 'menunggu_verifikasi'),
+      anggota: g
+    });
+  }
+  out.sort((a, b) => String(a.tglPinjam).localeCompare(b.tglPinjam));
+  return out;
+};
+
+function renderLoans(){
+  renderLoanCounts();
+  const isAdmin = currentUser.role === 'admin';
+  const q = ($('#loanSearch').value || '').trim().toLowerCase();
+
+  let loans = mergedTransactions(visibleMerged()).sort((a, b) => String(b.tglPinjam).localeCompare(String(a.tglPinjam)));
+  if (loanFilter === 'dipinjam')     loans = loans.filter(l => l.status === 'dipinjam');
+  if (loanFilter === 'dikembalikan') loans = loans.filter(l => l.status === 'dikembalikan');
+  if (q) loans = loans.filter(l =>
+    [l.borrowerNama, l.borrowerNim, l.borrowerKelas, l.mataKuliah, l.lcdText, l.ruangText, l.tglPinjam, l.tglKembali, l.status]
+      .some(f => String(f || '').toLowerCase().includes(q)));
+
+  $('#loanTableBody').innerHTML = loans.length === 0
+    ? `<tr><td colspan="10"><div class="empty-state"><p>Belum ada transaksi pada kategori ini.</p></div></td></tr>`
+    : loans.map(l => {
+        const pendingLcd = l.anggota.filter(x => x.jenis === 'lcd' && x.status === 'dipinjam');
+        const pendingRuang = l.anggota.filter(x => x.jenis === 'ruang' && x.status === 'dipinjam');
+        return `
+        <tr>
+          <td><div class="unit-name">${esc(l.borrowerNama || '-')}</div></td>
+          <td>${esc(l.borrowerNim || '-')}</td>
+          <td>${esc(l.borrowerKelas || '-')}</td>
+          <td>${esc(l.mataKuliah || '-')}</td>
+          <td>${esc(l.lcdText)}</td>
+          <td>${esc(l.ruangText)}</td>
+          <td>${fmtDate(l.tglPinjam)}</td>
+          <td>${l.tglKembali ? fmtDate(l.tglKembali) : '-'}</td>
+          <td>${mergedStatusBadge(l)}</td>
+          <td>
+            <div class="row-actions">
+              ${isAdmin && pendingLcd.length
+                ? `<button class="mini-btn" data-return="${pendingLcd[0].id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>Kembalikan LCD</button>`
+                : ''}
+              ${isAdmin && pendingRuang.length
+                ? `<button class="mini-btn" data-return-room="${pendingRuang[0].id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>Kembalikan Ruang</button>`
+                : ''}
+              ${isAdmin ? hapusPaketBtnHTML(l) : ''}
+              ${!isAdmin ? '<span style="color:var(--muted);font-size:.75rem">-</span>' : ''}
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+}
+
+/* =====================================================================
+   RENDER: LAPORAN (ADMIN)
+   ===================================================================== */
+function reportRows(){
+  const from = $('#reportFrom').value || '0000-01-01';
+  const to   = $('#reportTo').value   || '9999-12-31';
+  const st   = $('#reportStatus').value;
+  const merged = mergedTransactions([...state.loans, ...state.roomLoans])
+    .filter(l => l.tglPinjam.slice(0, 10) >= from && l.tglPinjam.slice(0, 10) <= to)
+    .filter(l => st === 'semua' || l.status === st);
+  return merged;
+}
+
+function renderReport(){
+  const isAdminReport = currentUser && currentUser.role === 'admin';
+  const rows = reportRows();
+  const totalTrx  = rows.length;
+  const aktif     = rows.filter(l => l.status === 'dipinjam').length;
+  const selesai   = rows.filter(l => l.status === 'dikembalikan').length;
+
+  $('#reportSummary').innerHTML = `
+    <div class="summary-cell"><b>${totalTrx}</b><span>Total Transaksi</span></div>
+    <div class="summary-cell"><b>${aktif}</b><span>Masih Dipinjam</span></div>
+    <div class="summary-cell"><b>${selesai}</b><span>Selesai</span></div>`;
+
+  $('#reportTableBody').innerHTML = rows.length === 0
+    ? `<tr><td colspan="11"><div class="empty-state"><p>Tidak ada transaksi pada rentang tanggal ini.</p></div></td></tr>`
+    : rows.map((l, i) => {
+        return `<tr>
+          <td>${i + 1}</td>
+          <td><div class="unit-name" style="font-size:.8rem">${esc(l.borrowerNama || '-')}</div></td>
+          <td>${esc(l.borrowerNim || '-')}</td>
+          <td>${esc(l.borrowerKelas || '-')}</td>
+          <td>${esc(l.mataKuliah || '-')}</td>
+          <td>${esc(l.lcdText)}</td>
+          <td>${esc(l.ruangText)}</td>
+          <td>${fmtDate(l.tglPinjam)}</td>
+          <td>${l.tglKembali ? fmtDate(l.tglKembali) : '-'}</td>
+          <td>${mergedStatusBadge(l)}</td>
+          <td style="text-align:right">${isAdminReport ? hapusPaketBtnHTML(l) : '-'}</td>
+        </tr>`;
+      }).join('');
+}
+
+function exportReportCsv(){
+  const rows = reportRows();
+  const fmtTgl = v => v ? fmtDate(v).replace(/;/g, ',') : '';
+  const safe = v => String(v ?? '').replace(/;/g, ',').replace(/\r?\n/g, ' ');
+  const head = ['No', 'Nama Peminjam', 'NIM', 'Kelas', 'Mata Kuliah', 'Nama LCD', 'Nama Ruang', 'Pinjam', 'Kembali', 'Status'];
+  const lines = [head.join(';')];
+  rows.forEach((l, i) => {
+    const st = l.status === 'dikembalikan' ? 'Dikembalikan' : l.status === 'menunggu_verifikasi' ? 'Menunggu Verifikasi' : 'Dipinjam';
+    lines.push([i + 1, safe(l.borrowerNama), safe(l.borrowerNim), safe(l.borrowerKelas), safe(l.mataKuliah), safe(l.lcdText), safe(l.ruangText), safe(fmtTgl(l.tglPinjam)), safe(l.tglKembali ? fmtTgl(l.tglKembali) : ''), st].join(';'));
+  });
+  const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'laporan-peminjaman-' + todayISO() + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV laporan diunduh (' + rows.length + ' baris).');
+}
+
+function buildPrintReport(){
+  const rows = reportRows();
+  const from = $('#reportFrom').value, to = $('#reportTo').value;
+  const aktif = rows.filter(l => l.status === 'dipinjam').length;
+  const selesai = rows.filter(l => l.status === 'dikembalikan').length;
+
+  $('#printArea').innerHTML = `
+    <h1>LAPORAN PEMINJAMAN LCD PROYEKTOR &amp; RUANGAN</h1>
+    <div class="p-sub">Sistem Peminjaman &amp; Pengembalian LCD Proyektor &amp; Ruangan - MESINBOOK</div>
+    <div class="p-meta">Periode: <b>${fmtDate(from)}</b> s/d <b>${fmtDate(to)}</b> &nbsp;&#183;&nbsp; Dicetak: ${fmtDate(nowLocalValue())} &nbsp;&#183;&nbsp; Oleh: ${esc(currentUser.nama)}</div>
+    <table>
+      <thead><tr><th>No</th><th>Nama Peminjam</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th></tr></thead>
+      <tbody>
+        ${rows.length === 0
+          ? '<tr><td colspan="10" style="text-align:center">Tidak ada data pada periode ini.</td></tr>'
+          : rows.map((l, i) => {
+              return `<tr><td>${i+1}</td><td>${esc(l.borrowerNama || '-')}</td><td>${esc(l.borrowerNim || '-')}</td><td>${esc(l.borrowerKelas || '-')}</td><td>${esc(l.mataKuliah || '-')}</td><td>${esc(l.lcdText)}</td><td>${esc(l.ruangText)}</td><td>${fmtDate(l.tglPinjam)}</td><td>${l.tglKembali ? fmtDate(l.tglKembali) : '-'}</td><td>${l.status === 'dikembalikan' ? 'Dikembalikan' : l.status === 'menunggu_verifikasi' ? 'Menunggu Verifikasi' : 'Dipinjam'}</td></tr>`;
+            }).join('')}
+      </tbody>
+    </table>
+    <div class="p-summary">
+      <b>Ringkasan:</b> ${rows.length} transaksi &nbsp;&#183;&nbsp; ${aktif} masih dipinjam &nbsp;&#183;&nbsp; ${selesai} selesai
+    </div>
+    <div class="p-sign"><div class="p-sign-box">Mengetahui,<br>Administrator<div class="p-sign-name">( ${esc(currentUser.nama)} )</div></div></div>`;
+}
+
+/* =====================================================================
+   RENDER: PENGGUNA (ADMIN)
+   ===================================================================== */
+function renderUsers(){
+  const q = ($('#userSearch').value || '').trim().toLowerCase();
+  const rows = [...state.users]
+    .sort((a, b) => String(a.createdAt || '').localeCompare(String(b.createdAt || '')) || String(a.username).localeCompare(String(b.username)))
+    .filter(u => !q || [u.nama, u.username, u.email, u.nim, u.kelas, u.nip, u.tipe === 'pegawai' ? 'pegawai' : 'mahasiswa'].some(f => String(f || '').toLowerCase().includes(q)));
+  $('#userTableBody').innerHTML = rows.length === 0
+    ? `<tr><td colspan="9"><div class="empty-state"><p>Tidak ada pengguna ditemukan.</p></div></td></tr>`
+    : rows.map((u, i) => {
+      const tipe = u.tipe === 'pegawai' ? 'pegawai' : 'mahasiswa';
+      const idNum = tipe === 'pegawai' ? (u.nip || '') : (u.nim || '');
+      return `
+      <tr>
+        <td>${i + 1}</td>
+        <td><div class="unit-name">${esc(u.nama)}</div></td>
+        <td class="code-cell">@${esc(u.username)}</td>
+        <td>${tipe === 'pegawai' ? '<span class="badge dipinjam">Pegawai</span>' : '<span class="badge user">Mahasiswa</span>'}</td>
+        <td style="font-size:.8rem">${esc(u.email || '—')}</td>
+        <td>${esc(idNum || '—')}</td>
+        <td>${esc(tipe === 'pegawai' ? '—' : (u.kelas || '—'))}</td>
+        <td>${u.role === 'admin' ? '<span class="badge admin">Admin</span>' : '<span class="badge user">User</span>'}</td>
+        <td>${fmtDate(u.createdAt)}</td>
+        <td><div class="row-actions">
+          <button class="mini-btn" data-edit-user="${u.id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L8 20l-5 1 1-5Z"/></svg>Edit</button>
+          ${u.id === currentUser.id
+            ? '<span style="color:var(--muted);font-size:.75rem">Akun kamu</span>'
+            : (u.role === 'admin' && state.users.filter(x => x.role === 'admin').length <= 1
+                ? '<span style="color:var(--muted);font-size:.75rem" title="Minimal harus ada satu akun admin">Dilindungi</span>'
+                : `<button class="mini-btn danger" data-delete-user="${u.id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Hapus</button>`)}
+        </div></td>
+      </tr>`;
+    }).join('');
+}
+
+/* =====================================================================
+   RENDER SEMUA
+   ===================================================================== */
+
+function renderPengembalian(){
+  const q = ($('#pengembalianQuery').value || '').trim().toLowerCase();
+  const tbody = $('#pengembalianBody');
+  const count = $('#pengembalianCount');
+
+  const merged = mergedTransactions([...state.loans, ...state.roomLoans])
+    .sort((a, b) => String(b.tglPinjam).localeCompare(String(a.tglPinjam)));
+
+  const rows = q ? merged.filter(l =>
+    [l.borrowerNama, l.borrowerNim, l.borrowerKelas, l.mataKuliah, l.lcdText, l.ruangText, l.tglPinjam, l.status]
+      .some(f => String(f || '').toLowerCase().includes(q))) : merged;
+
+  count.textContent = String(rows.length);
+  tbody.innerHTML = rows.length === 0
+    ? `<tr><td colspan="10"><div class="empty-state"><p>${q ? 'Tidak ada data yang cocok dengan pencarian.' : '<b>Belum ada peminjaman.</b>'}</p></div></td></tr>`
+    : rows.map(l => {
+        const pending = l.anggota.filter(x => x.status === 'dipinjam');
+        const waiting = l.anggota.filter(x => x.status === 'menunggu_verifikasi');
+        const csvPending = pending.map(m => m.jenis + ':' + m.id).join(',');
+        const csvWaiting = waiting.map(m => m.jenis + ':' + m.id).join(',');
+        const isAdminPengembalian = currentUser && currentUser.role === 'admin';
+        const [tgl, jam] = String(l.tglPinjam || '').split('T');
+        return `
+        <tr>
+          <td><div class="unit-name">${esc(l.borrowerNama || '-')}</div></td>
+          <td>${esc(l.borrowerNim || '-')}</td>
+          <td>${esc(l.borrowerKelas || '-')}</td>
+          <td>${esc(l.mataKuliah || '-')}</td>
+          <td>${esc(l.lcdText)}</td>
+          <td>${esc(l.ruangText)}</td>
+          <td>${esc(tgl || '-')}</td>
+          <td>${esc(jam || '-')}</td>
+          <td>${mergedStatusBadge(l)}</td>
+          <td style="text-align:right">
+            <div class="row-actions" style="justify-content:flex-end">
+              ${pending.length
+                ? `<button class="mini-btn" data-return-paket="${csvPending}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>Kembalikan</button>`
+                : ''}
+              ${waiting.length && isAdminPengembalian
+                ? `<button class="mini-btn" data-verify="${csvWaiting}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 10"/></svg>Verifikasi</button><button class="mini-btn danger" data-reject="${csvWaiting}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Tolak</button>`
+                : ''}
+              ${!pending.length && waiting.length && !isAdminPengembalian ? '<span style="color:var(--amber-deep);font-size:.72rem;font-weight:800">MENUNGGU VERIFIKASI</span>' : ''}
+              ${!pending.length && !waiting.length ? '<span style="color:var(--muted);font-size:.75rem">Selesai</span>' : ''}
+              ${isAdminPengembalian ? hapusPaketBtnHTML(l) : ''}
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+}
+
+/* =====================================================================
+   RENDER: RUANG (Pengunjung & Admin)
+   ===================================================================== */
+
+
+
+/* =====================================================================
+   RENDER: DATA RUANG (ADMIN)
+   ===================================================================== */
+function renderRuangData(){
+  const q = ($('#roomAdminSearch').value || '').trim().toLowerCase();
+  const filter = $('#roomAdminFilter').value;
+  const rows = state.rooms.filter(r => {
+    const matchQ = !q || [r.kode, r.nama, r.kapasitas].some(f => String(f || '').toLowerCase().includes(q));
+    const matchF = filter === 'semua' || r.status === filter;
+    return matchQ && matchF;
+  }).sort((a, b) => String(a.kode).localeCompare(String(b.kode)));
+
+  $('#roomAdminTableBody').innerHTML = rows.length === 0
+    ? `<tr><td colspan="5"><div class="empty-state"><p>Belum ada ruangan. Klik <b>Tambah Ruangan</b> untuk mulai menambahkan.</p></div></td></tr>`
+    : rows.map(r => `
+      <tr>
+        <td class="code-cell">${esc(r.kode)}</td>
+        <td><div class="unit-name">${esc(r.nama)}</div></td>
+        <td>${esc(r.kapasitas || '-')}</td>
+        <td>${statusBadge(r)}</td>
+        <td>
+          <div class="row-actions">
+            ${r.status === 'tersedia'
+              ? `<button class="mini-btn amber" data-borrow-room="${r.id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Pinjam</button>`
+              : ''}
+            <button class="mini-btn" data-edit-room="${r.id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L8 20l-5 1 1-5Z"/></svg>Edit</button>
+            <button class="mini-btn danger" data-delete-room="${r.id}" ${r.status === 'dipinjam' ? 'disabled title="Ruang sedang dipinjam"' : ''}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Hapus</button>
+          </div>
+        </td>
+      </tr>`).join('');
+}
+
+/* =====================================================================
+   AKSI: TAMBAH / EDIT / HAPUS RUANG
+   ===================================================================== */
+function openRoomModal(room){
+  $('#roomModalTitle').textContent = room ? 'Edit Ruangan' : 'Tambah Ruangan';
+  $('#roomId').value = room ? room.id : '';
+  const kodeBaru = `RUANG-${String(state.rooms.length + 1).padStart(3, '0')}`;
+  $('#roomKode').value = room ? room.kode : kodeBaru;
+  $('#roomNama').value = room ? room.nama : '';
+  $('#roomKapasitas').value = room ? (room.kapasitas || '') : '';  const statusSel = $('#roomStatus');
+  if (room && room.status === 'dipinjam'){
+    statusSel.innerHTML = '<option value="dipinjam">Dipinjam (terkunci otomatis)</option>';
+    statusSel.disabled = true;
+    $('#roomStatusHint').textContent = 'Status kembali ke "Tersedia" saat ruang dikembalikan.';
+  } else {
+    statusSel.innerHTML = '<option value="tersedia">Tersedia</option><option value="maintenance">Maintenance / Tidak Dipakai</option>';
+    statusSel.value = room ? room.status : 'tersedia';
+    statusSel.disabled = false;
+    $('#roomStatusHint').textContent = 'Status "Dipinjam" diatur otomatis oleh transaksi peminjaman.';
+  }
+  openModal('roomModal');
+}
+
+async function handleRoomSubmit(e){
+  e.preventDefault();
+  const id = $('#roomId').value || null;
+  const kode = $('#roomKode').value.trim().toUpperCase();
+  const nama = $('#roomNama').value.trim();
+  const kapasitas = parseInt($('#roomKapasitas').value || '0', 10) || 0;
+  const statusSel = $('#roomStatus');
+  const status = statusSel.disabled ? 'dipinjam' : statusSel.value;
+
+  if (!kode || !nama) return showToast('Kode dan nama ruangan wajib diisi.', 'error');
+  if (state.rooms.some(r => r.kode.toLowerCase() === kode.toLowerCase() && r.id !== id))
+    return showToast(`Kode "${kode}" sudah dipakai ruangan lain.`, 'error');
+
+  try {
+    if (id){
+      await updateDoc(doc(db, 'rooms', id), { kode, nama, kapasitas, status });
+      showToast(`Ruangan ${kode} berhasil diperbarui.`);
+    } else {
+      await addDoc(collection(db, 'rooms'), { kode, nama, kapasitas, status, createdAt: todayISO() });
+      showToast(`Ruangan ${kode} berhasil ditambahkan.`);
+    }
+    closeModal('roomModal');
+  } catch (err) {
+    console.error(err);
+    showToast('Gagal menyimpan ruangan. Periksa koneksi & hak aksesmu.', 'error');
+  }
+}
+
+function deleteRoom(id){
+  const r = roomById(id);
+  if (!r) return;
+  if (r.status === 'dipinjam') return showToast('Ruang sedang dipinjam, tidak bisa dihapus.', 'error');
+  openConfirm(
+    'Hapus Ruangan',
+    `Yakin ingin menghapus <b>${esc(r.kode)}</b>?<br>Riwayat transaksi ruang ini tetap tersimpan di laporan.`,
+    'Ya, Hapus',
+    async () => {
+      try {
+        await deleteDoc(doc(db, 'rooms', id));
+        showToast(`Ruangan ${r.kode} dihapus.`);
+      } catch (err) {
+        console.error(err);
+        showToast('Gagal menghapus ruangan. Coba lagi.', 'error');
+      }
+    }
+  );
+}
+
+/* =====================================================================
+   AKSI: PINJAM & KEMBALIKAN RUANG
+   ===================================================================== */
+
+
+const resolveMemberCsv = csv => String(csv || '').split(',').map(token => {
+  const [jenis, id] = token.split(':');
+  const src = jenis === 'ruang' ? state.roomLoans : state.loans;
+  return src.find(x => x.id === id);
+}).filter(Boolean);
+
+// Notifikasi email ke admin saat pengembalian masuk (status: Menunggu Verifikasi)
+// Memakai FormSubmit (gratis, tanpa sign-up). Penerima perlu klik link aktivasi SEKALI saja di inbox.
+const ADMIN_EMAIL = 'freddyansyah.saputra@poltekba.ac.id';
+function notifyReturnEmail(members){
+  try {
+    members = members || [];
+    const first = members[0] || {};
+    const items = members.map(m => {
+      const it = m.jenis === 'ruang' ? roomById(m.roomId) : projectorById(m.projectorId);
+      return it ? (it.kode + ' - ' + it.nama) : (m.jenis === 'ruang' ? 'Ruang' : 'LCD');
+    }).join(', ');
+    const payload = {
+      _subject: 'MESINBOOK: Pengembalian menunggu verifikasi — ' + (first.borrowerNama || '-'),
+      _template: 'table',
+      _captcha: 'false',
+      _honey: '',
+      Nama: first.borrowerNama || '-',
+      NIM: first.borrowerNim || first.borrowerNip || '-',
+      Kelas: first.borrowerKelas || '-',
+      'Mata Kuliah': mataKuliah(first),
+      'Item dikembalikan': items,
+      'Waktu pengembalian': fmtDate(nowLocalValue())
+    };
+    fetch('https://formsubmit.co/ajax/' + ADMIN_EMAIL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(err => console.warn('Notifikasi email gagal:', err));
+  } catch (err) {
+    console.warn('notifyReturnEmail:', err);
+  }
+}
+
+function submitReturn(members){
+  members = (members || []).filter(m => m && m.status === 'dipinjam');
+  if (!members.length) return showToast('Tidak ada item yang masih dipinjam.', 'error');
+  const waktu = fmtDate(nowLocalValue());
+  const items = members.map(m => {
+    const it = m.jenis === 'ruang' ? roomById(m.roomId) : projectorById(m.projectorId);
+    return it ? (it.kode + ' - ' + it.nama) : (m.jenis === 'ruang' ? 'Ruang' : 'LCD');
+  }).join('<br>');
+  openConfirm('Pengembalian',
+    `Konfirmasi pengembalian berikut?<br><b>${items}</b><br>Status akan menjadi <b>Menunggu Verifikasi</b> (barang diperiksa admin).<br>Waktu pengembalian: <b>${waktu}</b>`,
+    'Ya, Kembalikan',
+    async () => {
+      const tgl = nowLocalValue();
+      try {
+        await runTransaction(db, async (tx) => {
+          const refs = members.map(m => doc(db, m.jenis === 'ruang' ? 'room_loans' : 'loans', m.id));
+          const snaps = [];
+          for (const ref of refs) snaps.push(await tx.get(ref));
+          snaps.forEach(snap => {
+            if (!snap.exists() || snap.data().status !== 'dipinjam') throw new Error('NOT_ACTIVE');
+          });
+          snaps.forEach(snap => {
+            tx.update(snap.ref, { status: 'menunggu_verifikasi', tglKembali: tgl });
+          });
+        });
+        showToast('Pengembalian terkirim. Menunggu verifikasi admin.');
+        notifyReturnEmail(members);
+      } catch (err) {
+        console.error(err);
+        showToast(err && err.message === 'NOT_ACTIVE' ? 'Item sudah bukan status Dipinjam. Muat ulang halaman.' : 'Gagal mengirim pengembalian: ' + (err && err.code ? err.code : 'error'), 'error');
+      }
+    });
+}
+
+function verifyReturn(members){
+  if (!currentUser || currentUser.role !== 'admin') return showToast('Hanya admin yang bisa verifikasi.', 'error');
+  members = (members || []).filter(m => m.status === 'menunggu_verifikasi');
+  if (!members.length) return showToast('Tidak ada item yang menunggu verifikasi.', 'error');
+  const items = members.map(m => {
+    const it = m.jenis === 'ruang' ? roomById(m.roomId) : projectorById(m.projectorId);
+    return it ? (it.kode + ' - ' + it.nama) : (m.jenis === 'ruang' ? 'Ruang' : 'LCD');
+  }).join('<br>');
+  openConfirm('Verifikasi Pengembalian',
+    `Verifikasi pengembalian item berikut?<br><b>${items}</b><br>Unit akan kembali berstatus <b>Tersedia</b>.`,
+    'Ya, Verifikasi',
+    async () => {
+      try {
+        const batch = writeBatch(db);
+        for (const m of members){
+          batch.update(doc(db, m.jenis === 'ruang' ? 'room_loans' : 'loans', m.id), { status: 'dikembalikan' });
+          if (m.jenis === 'ruang' && m.roomId) batch.update(doc(db, 'rooms', m.roomId), { status: 'tersedia' });
+          if (m.jenis !== 'ruang' && m.projectorId) batch.update(doc(db, 'projectors', m.projectorId), { status: 'tersedia' });
+        }
+        await batch.commit();
+        showToast('Pengembalian diverifikasi. Unit kembali tersedia.');
+      } catch (err) {
+        console.error(err);
+        showToast('Gagal verifikasi. Coba lagi.', 'error');
+      }
+    });
+}
+
+function rejectReturn(members){
+  if (!currentUser || currentUser.role !== 'admin') return showToast('Hanya admin yang bisa menolak.', 'error');
+  members = (members || []).filter(m => m.status === 'menunggu_verifikasi');
+  if (!members.length) return showToast('Tidak ada item yang menunggu verifikasi.', 'error');
+  openConfirm('Tolak Pengembalian',
+    `Tolak pengembalian <b>${members.length} item</b>?<br>Status kembali menjadi <b>Dipinjam</b>.<br>Peminjam harus mengajukan pengembalian lagi.`,
+    'Ya, Tolak',
+    async () => {
+      try {
+        const batch = writeBatch(db);
+        for (const m of members){
+          batch.update(doc(db, m.jenis === 'ruang' ? 'room_loans' : 'loans', m.id), { status: 'dipinjam', tglKembali: null });
+        }
+        await batch.commit();
+        showToast('Pengembalian ditolak.');
+      } catch (err) {
+        console.error(err);
+        showToast('Gagal menolak. Coba lagi.', 'error');
+      }
+    });
+}
+
+function returnRoomLoan(loanId){
+  const loan = state.roomLoans.find(l => l.id === loanId);
+  if (!loan || loan.status !== 'dipinjam') return;
+  const r = roomById(loan.roomId);
+  const roomLabel = esc(r ? r.kode + ' - ' + r.nama : '');
+  const waktu = fmtDate(nowLocalValue());
+  const pesan = `Konfirmasi pengembalian ruangan <b>${roomLabel}</b>?<br>Ruangan akan kembali berstatus <b>Tersedia</b>.<br>Waktu pengembalian: <b>${waktu}</b>`;
+
+  openConfirm('Pengembalian Ruangan', pesan, 'Ya, Kembalikan', async () => {
+    try {
+      await runTransaction(db, async (tx) => {
+        const lRef = doc(db, 'room_loans', loanId);
+        const snap = await tx.get(lRef);
+        if (!snap.exists() || snap.data().status !== 'dipinjam') throw new Error('NOT_ACTIVE');
+        tx.update(lRef, { status: 'dikembalikan', tglKembali: nowLocalValue() });
+        tx.update(doc(db, 'rooms', loan.roomId), { status: 'tersedia' });
+      });
+      showToast('Ruangan berhasil dikembalikan. Terima kasih!');
+    } catch (err) {
+      console.error(err);
+      showToast('Gagal memproses pengembalian. Coba lagi.', 'error');
+    }
+  });
+}
+
+function renderMyLoans(){
+  const el = $('#myLoanBody');
+  if (!el || !currentUser) return;
+  const isMahasiswa = currentUser.tipe === 'mahasiswa';
+  const myKelas = String(currentUser.kelas || '').toUpperCase();
+  const myNip   = String(currentUser.nip || '');
+  const all = mergedTransactions([...state.loans, ...state.roomLoans]);
+  const rows = isMahasiswa
+    ? all.filter(l => String(l.borrowerKelas || '').toUpperCase() === myKelas)
+    : (myNip ? all.filter(l => String(l.borrowerNim || '') === myNip) : []);
+  rows.sort((a, b) => String(b.tglPinjam).localeCompare(String(a.tglPinjam)));
+  const countEl = $('#myLoanCount');
+  if (countEl) countEl.textContent = String(rows.length);
+  el.innerHTML = rows.length === 0
+    ? '<tr><td colspan="9"><div class="empty-state"><p>Belum ada peminjaman tercatat untuk akun ini.</p></div></td></tr>'
+    : rows.map(l => {
+        const badge = l.status === 'dikembalikan'
+          ? '<span class="badge dikembalikan">Dikembalikan</span>'
+          : l.status === 'menunggu_verifikasi'
+            ? '<span class="badge waiting">Menunggu Verifikasi</span>'
+            : '<span class="badge dipinjam">Dipinjam</span>';
+        return `<tr>
+          <td><div class="unit-name">${esc(l.borrowerNama || '-')}</div></td>
+          <td>${esc(l.borrowerNim || '-')}</td>
+          <td>${esc(l.borrowerKelas || '-')}</td>
+          <td>${esc(l.mataKuliah)}</td>
+          <td>${esc(l.lcdText)}</td>
+          <td>${esc(l.ruangText)}</td>
+          <td>${fmtDate(l.tglPinjam)}</td>
+          <td>${l.tglKembali ? fmtDate(l.tglKembali) : '-'}</td>
+          <td>${badge}</td>
+        </tr>`;
+      }).join('');
+}
+
+function renderAll(){
+  renderDashboard();
+  renderProjectors();
+  renderLoans();
+  renderPengembalian();
+  renderMyLoans();
+  renderPaketDropdowns();
+  if (currentUser.role === 'admin'){ renderReport(); renderUsers(); renderRuangData(); }
+}
+
+/* =====================================================================
+   AKSI: TAMBAH / EDIT / HAPUS PROYEKTOR
+   ===================================================================== */
+function openProjectorModal(projector){
+  $('#projectorModalTitle').textContent = projector ? 'Edit Unit Proyektor' : 'Tambah Unit Proyektor';
+  $('#projId').value = projector ? projector.id : '';
+  const kodeBaru = `LCD-${String(state.projectors.length + 1).padStart(3, '0')}`;
+  $('#projKode').value = projector ? projector.kode : kodeBaru;
+  $('#projNama').value = projector ? projector.nama : '';
+  const statusSel = $('#projStatus');
+  if (projector && projector.status === 'dipinjam'){
+    statusSel.innerHTML = '<option value="dipinjam">Dipinjam (terkunci otomatis)</option>';
+    statusSel.disabled = true;
+    $('#projStatusHint').textContent = 'Status kembali ke "Tersedia" saat unit dikembalikan.';
+  } else {
+    statusSel.innerHTML = '<option value="tersedia">Tersedia</option><option value="maintenance">Maintenance / Tidak Dipakai</option>';
+    statusSel.value = projector ? projector.status : 'tersedia';
+    statusSel.disabled = false;
+    $('#projStatusHint').textContent = 'Status "Dipinjam" diatur otomatis oleh transaksi peminjaman.';
+  }
+  openModal('projectorModal');
+}
+
+async function handleProjectorSubmit(e){
+  e.preventDefault();
+  const id = $('#projId').value || null;
+  const kode = $('#projKode').value.trim().toUpperCase();
+  const nama = $('#projNama').value.trim();
+  const statusSel = $('#projStatus');
+  const status = statusSel.disabled ? 'dipinjam' : statusSel.value;
+
+  if (!kode || !nama) return showToast('Kode dan nama unit wajib diisi.', 'error');
+  if (state.projectors.some(p => p.kode.toLowerCase() === kode.toLowerCase() && p.id !== id))
+    return showToast(`Kode "${kode}" sudah dipakai unit lain.`, 'error');
+
+  try {
+    if (id){
+      await updateDoc(doc(db, 'projectors', id), { kode, nama, status });
+      showToast(`Unit ${kode} berhasil diperbarui.`);
+    } else {
+      await addDoc(collection(db, 'projectors'), { kode, nama, status });
+      showToast(`Unit ${kode} berhasil ditambahkan.`);
+    }
+    closeModal('projectorModal');
+  } catch (err) {
+    console.error(err);
+    showToast('Gagal menyimpan unit. Periksa koneksi & hak aksesmu.', 'error');
+  }
+}
+
+function deleteProjector(id){
+  const p = projectorById(id);
+  if (!p) return;
+  if (p.status === 'dipinjam') return showToast('Unit sedang dipinjam, tidak bisa dihapus.', 'error');
+  openConfirm(
+    'Hapus Unit',
+    `Yakin ingin menghapus <b>${esc(p.kode)} — ${esc(p.nama)}</b>?<br>Riwayat transaksi unit ini tetap tersimpan di laporan.`,
+    'Ya, Hapus',
+    async () => {
+      try {
+        await deleteDoc(doc(db, 'projectors', id));
+        showToast(`Unit ${p.kode} dihapus.`);
+      } catch (err) {
+        console.error(err);
+        showToast('Gagal menghapus unit. Coba lagi.', 'error');
+      }
+    }
+  );
+}
+
+/* =====================================================================
+   AKSI: PINJAM & KEMBALIKAN
+   ===================================================================== */
+
+
+function returnLoan(loanId){
+  const loan = state.loans.find(l => l.id === loanId);
+  if (!loan || loan.status !== 'dipinjam') return;
+  const p = projectorById(loan.projectorId);
+  const unitLabel = esc(p ? p.kode + ' - ' + p.nama : '');
+  const waktu = fmtDate(nowLocalValue());
+  const pesan = `Konfirmasi pengembalian unit <b>${unitLabel}</b>?<br>Unit akan kembali berstatus <b>Tersedia</b>.<br>Waktu pengembalian: <b>${waktu}</b>`;
+
+  openConfirm('Pengembalian Proyektor', pesan, 'Ya, Kembalikan', async () => {
+    try {
+      await runTransaction(db, async (tx) => {
+        const lRef = doc(db, 'loans', loanId);
+        const snap = await tx.get(lRef);
+        if (!snap.exists() || snap.data().status !== 'dipinjam') throw new Error('NOT_ACTIVE');
+        tx.update(lRef, { status: 'dikembalikan', tglKembali: nowLocalValue() });
+        tx.update(doc(db, 'projectors', loan.projectorId), { status: 'tersedia' });
+      });
+      showToast('Unit berhasil dikembalikan. Terima kasih!');
+    } catch (err) {
+      console.error(err);
+      showToast('Gagal memproses pengembalian. Coba lagi.', 'error');
+    }
+  });
+}
+
+function deleteTransactions(members){
+  members = (members || []).filter(Boolean);
+  if (!members.length) return;
+  if (!currentUser || currentUser.role !== 'admin') return showToast('Hanya admin yang bisa menghapus data.', 'error');
+  const nama = members[0].borrowerNama || '-';
+  const nim  = members[0].borrowerNim || members[0].borrowerNip || '-';
+  const items = members.map(m => {
+    const it = m.jenis === 'ruang' ? roomById(m.roomId) : projectorById(m.projectorId);
+    return it ? (it.kode + ' - ' + it.nama) : (m.jenis === 'ruang' ? 'Ruang (unit terhapus)' : 'LCD (unit terhapus)');
+  }).join(', ');
+  const waktu = fmtDate(members[0].tglPinjam);
+  const adaAktif = members.some(m => m.status === 'dipinjam');
+  const warn = adaAktif ? '<br><b>Catatan:</b> item yang masih <b>Dipinjam</b> akan otomatis dikembalikan ke status <b>Tersedia</b>.' : '';
+  openConfirm('Hapus Data Transaksi',
+    `Yakin ingin menghapus data peminjaman berikut secara <b>permanen</b>?<br>Nama: <b>${esc(nama)}</b> &nbsp;&middot;&nbsp; NIM: <b>${esc(nim)}</b><br>Item: <b>${esc(items)}</b><br>Waktu pinjam: <b>${esc(waktu)}</b>${warn}<br>Data yang dihapus <b>tidak dapat dikembalikan</b>.`,
+    'Ya, Hapus Permanen',
+    async () => {
+      try {
+        const batch = writeBatch(db);
+        for (const m of members){
+          batch.delete(doc(db, m.jenis === 'ruang' ? 'room_loans' : 'loans', m.id));
+          if (m.status === 'dipinjam'){
+            if (m.jenis === 'ruang' && m.roomId) batch.update(doc(db, 'rooms', m.roomId), { status: 'tersedia' });
+            if (m.jenis !== 'ruang' && m.projectorId) batch.update(doc(db, 'projectors', m.projectorId), { status: 'tersedia' });
+          }
+        }
+        await batch.commit();
+        showToast('Data transaksi berhasil dihapus.');
+      } catch (err) {
+        console.error(err);
+        showToast('Gagal menghapus: ' + (err && err.code ? err.code : 'error') + ' — pastikan rules Firestore terbaru sudah dipublish (izin hapus admin).', 'error');
+      }
+    });
+}
+
+function deleteUser(id){
+  const u = userById(id);
+  if (!u) return;
+  if (u.id === currentUser.id) return showToast('Kamu tidak bisa menghapus akun yang sedang dipakai.', 'error');
+  if (u.role === 'admin' && state.users.filter(x => x.role === 'admin').length <= 1)
+    return showToast('Minimal harus ada satu akun admin di sistem.', 'error');
+  openConfirm(
+    'Hapus Pengguna',
+    `Hapus akun <b>${esc(u.nama)}</b> (@${esc(u.username)})?<br>Catatan: akun loginnya tidak terhapus dari Firebase Authentication (bisa dinonaktifkan lewat console), tapi profil & riwayatnya tidak bisa dipakai lagi.`,
+    'Ya, Hapus',
+    async () => {
+      try {
+        await deleteDoc(doc(db, 'users', u.id));
+        await deleteDoc(doc(db, 'usernames', u.username));
+        showToast(`Akun @${u.username} dihapus.`);
+      } catch (err) {
+        console.error(err);
+        showToast('Gagal menghapus akun. Coba lagi.', 'error');
+      }
+    }
+  );
+}
+
+/* toggle kolom Mahasiswa (NIM/Kelas) vs Pegawai (NIP/NIK) */
+function applyTipeVisibility(prefix){
+  const tipeEl = $('#' + prefix + 'Tipe');
+  if (!tipeEl) return;
+  const pegawai = tipeEl.value === 'pegawai';
+  $('#' + prefix + 'MahasiswaFields').classList.toggle('hidden', pegawai);
+  $('#' + prefix + 'PegawaiFields').classList.toggle('hidden', !pegawai);
+}
+
+/* =====================================================================
+   AKSI: AKUN SAYA & TAMBAH PENGGUNA
+   ===================================================================== */
+function openAccountModal(){
+  $('#accUsername').value = currentUser.username;
+  $('#accEmail').value = currentUser.email || (auth.currentUser && auth.currentUser.email) || '';
+  $('#accNama').value = currentUser.nama;
+  $('#accTipe').value = currentUser.tipe || 'mahasiswa';
+  $('#accNim').value = currentUser.nim || '';
+  $('#accKelas').value = currentUser.kelas || '';
+  $('#accNip').value = currentUser.nip || '';
+  applyTipeVisibility('acc');
+  $('#accPassword').value = '';
+  $('#accConfirm').value = '';
+  openModal('accountModal');
+  setTimeout(() => $('#accNama').focus(), 60);
+}
+
+async function handleAccountSubmit(e){
+  e.preventDefault();
+  const nama = $('#accNama').value.trim();
+  const tipe = $('#accTipe').value;
+  const nim = $('#accNim').value.trim();
+  const kelas = $('#accKelas').value.trim();
+  const nip = $('#accNip').value.trim();
+  const password = $('#accPassword').value;
+  const confirm = $('#accConfirm').value;
+
+  if (nama.length < 3) return showToast('Nama lengkap minimal 3 karakter.', 'error');
+  if (nim && !nimValid(nim)) return showToast('NIM maksimal 9 digit angka.', 'error');
+  if (password || confirm){
+    if (password.length < 6) return showToast('Password minimal 6 karakter.', 'error');
+    if (password !== confirm) return showToast('Konfirmasi password tidak cocok.', 'error');
+  }
+
+  const data = tipe === 'pegawai'
+    ? { nama, tipe, nim: '', kelas: '', nip }
+    : { nama, tipe, nim, kelas, nip: '' };
+
+  try {
+    await updateDoc(doc(db, 'users', currentUser.id), data);
+    currentUser.nama = nama;
+    currentUser.tipe = tipe;
+    currentUser.nim = data.nim;
+    currentUser.kelas = data.kelas;
+    currentUser.nip = data.nip;
+
+    if (password){
+      await updatePassword(auth.currentUser, password);
+    }
+
+    // segarkan chip di topbar
+    $('#chipName').textContent = nama;
+    $('#avatarInitial').textContent = nama.trim().charAt(0).toUpperCase();
+    closeModal('accountModal');
+    renderAll();
+    showToast('Akun kamu berhasil diperbarui.');
+  } catch (err) {
+    console.error(err);
+    if (err && String(err.code || '').includes('auth/requires-recent-login')){
+      showToast('Untuk ganti password, silakan login ulang sebentar lalu coba lagi.', 'error');
+    } else {
+      showToast('Gagal memperbarui akun. Coba lagi.', 'error');
+    }
+  }
+}
+
+function openUserModal(user){
+  const editing = user && user.id ? user : null;
+  $('#formUser').reset();
+  $('#newUserId').value = editing ? editing.id : '';
+  $('#userModalTitle').textContent = editing ? 'Edit Pengguna' : 'Tambah Pengguna';
+  $('#btnSubmitUser').textContent = editing ? 'Simpan Perubahan' : 'Tambahkan';
+  const emailInput = $('#newUserEmail');
+  const emailHint  = $('#newUserEmailHint');
+  const passField  = $('#newUserPasswordField');
+  const btnReset   = $('#btnSendReset');
+  if (editing){
+    $('#newUserNama').value     = editing.nama || '';
+    emailInput.value            = editing.email || '';
+    emailInput.readOnly         = true;
+    emailHint.textContent       = 'Email tidak bisa diubah (dipakai untuk login).';
+    $('#newUserUsername').value = editing.username || '';
+    $('#newUserTipe').value     = editing.tipe || 'mahasiswa';
+    applyTipeVisibility('newUser');
+    $('#newUserNim').value      = editing.nim || '';
+    $('#newUserKelas').value    = editing.kelas || '';
+    $('#newUserNip').value      = editing.nip || '';
+    $('#newUserRole').value     = editing.role || 'user';
+    passField.classList.add('hidden');
+    btnReset.classList.remove('hidden');
+  } else {
+    emailInput.readOnly = false;
+    emailHint.innerHTML = 'Verifikasi email hanya untuk akun <b>Admin</b>. Akun kelas (mahasiswa) bisa masuk dengan username &amp; password dari admin.';
+    $('#newUserTipe').value = 'mahasiswa';
+    applyTipeVisibility('newUser');
+    passField.classList.remove('hidden');
+    btnReset.classList.add('hidden');
+  }
+  $('#userModalError').textContent = '';
+  openModal('userModal');
+  setTimeout(() => $('#newUserNama').focus(), 60);
+}
+
+async function handleUserSubmit(e){
+  e.preventDefault();
+  const editingId = $('#newUserId').value || '';
+  const nama = $('#newUserNama').value.trim();
+  const username = $('#newUserUsername').value.trim().toLowerCase().replace(/\s+/g, '');
+  const email = $('#newUserEmail').value.trim().toLowerCase();
+  const tipe = $('#newUserTipe').value;
+  const nim = $('#newUserNim').value.trim();
+  const kelas = $('#newUserKelas').value.trim();
+  const nip = $('#newUserNip').value.trim();
+  const password = $('#newUserPassword').value;
+  const role = $('#newUserRole').value;
+  const fail = msg => { $('#userModalError').textContent = msg; };
+  const btn = $('#formUser button[type="submit"]');
+
+  if (nama.length < 3)                  return fail('Nama lengkap minimal 3 karakter.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('Format email tidak valid.');
+  if (!/^[a-z0-9_.-]{3,}$/.test(username)) return fail('Username min. 3 karakter, hanya huruf kecil/angka/._- tanpa spasi.');
+  if (role === 'user' && tipe === 'mahasiswa'){
+    if (!nim)                return fail('NIM wajib diisi untuk akun User.');
+    if (!nimValid(nim))      return fail('NIM maksimal 9 digit angka.');
+    if (!kelas)              return fail('Kelas wajib diisi untuk akun User.');
+  }
+  if (role === 'user' && tipe === 'pegawai' && !nip)
+                             return fail('NIP/NIK wajib diisi untuk akun User (Pegawai).');
+  if (!editingId && password.length < 6) return fail('Password minimal 6 karakter.');
+
+  // ── MODE EDIT ──
+  if (editingId){
+    try {
+      const u = state.users.find(x => x.id === editingId);
+      if (!u) return fail('Akun tidak ditemukan.');
+      if (u.id === currentUser.id && role !== u.role)
+        return fail('Kamu tidak bisa mengubah peran akun kamu sendiri.');
+      if (u.role === 'admin' && role !== 'admin' && state.users.filter(x => x.role === 'admin').length <= 1)
+        return fail('Minimal harus ada satu akun admin.');
+      if (username !== u.username){
+        const taken = await getDoc(doc(db, 'usernames', username));
+        if (taken.exists()) return fail('Username "' + username + '" sudah dipakai. Pilih yang lain.');
+      }
+      const extra = tipe === 'pegawai'
+        ? { tipe, nim: '', kelas: '', nip }
+        : { tipe, nim, kelas, nip: '' };
+      if (role === 'admin') Object.assign(extra, { nim: '', kelas: '', nip: '' });
+      await updateDoc(doc(db, 'users', u.id), { nama, username, ...extra, role });
+      if (username !== u.username){
+        await setDoc(doc(db, 'usernames', username), { uid: u.id, email: u.email });
+        await deleteDoc(doc(db, 'usernames', u.username));
+      }
+      closeModal('userModal');
+      showToast('Akun @' + username + ' berhasil diperbarui.');
+    } catch (err) {
+      console.error(err);
+      fail('Gagal menyimpan. Periksa koneksi & hak akses kamu.');
+    } finally {
+      btn.disabled = false;
+    }
+    return;
+  }
+
+
+  $('#userModalError').textContent = '';
+  btn.disabled = true;
+  try {
+    const taken = await getDoc(doc(db, 'usernames', username));
+    if (taken.exists()) return fail(`Username "${username}" sudah dipakai. Pilih yang lain.`);
+
+    // buat akun di aplikasi sekunder agar sesi admin yang sedang aktif tidak tergantikan
+    const sec = secondaryAuth();
+    const cred = await createUserWithEmailAndPassword(sec, email, password);
+    const extra = tipe === 'pegawai'
+      ? { tipe, nim: '', kelas: '', nip }
+      : { tipe, nim, kelas, nip: '' };
+    await setDoc(doc(db, 'users', cred.user.uid), { nama, username, email, ...extra, role, createdAt: todayISO() });
+    await setDoc(doc(db, 'usernames', username), { uid: cred.user.uid, email });
+    if (role === 'admin') await sendEmailVerification(cred.user);
+    await signOut(sec);
+
+    closeModal('userModal');
+    showToast(role === 'admin'
+      ? `Akun @${username} dibuat. Link verifikasi terkirim ke ${email}.`
+      : `Akun @${username} dibuat. Bagikan username & password ke akun tersebut.`);
+  } catch (err) {
+    console.error(err);
+    fail(firebaseErrorMessage(err));
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* =====================================================================
+   IMPOR AKUN DARI EXCEL (ADMIN)
+   ===================================================================== */
+let importRows = [];
+let importCredentials = [];
+
+function randomPassword(len = 10){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+  const arr = new Uint32Array(len);
+  crypto.getRandomValues(arr);
+  let out = '';
+  for (let i = 0; i < len; i++) out += chars[arr[i] % chars.length];
+  return out;
+}
+
+const normHeader = h => String(h || '').toUpperCase().replace(/\s+/g, ' ').trim();
+
+function pickCol(header, names){
+  const idx = {};
+  header.forEach((h, i) => { idx[normHeader(h)] = i; });
+  for (const n of names){ const k = normHeader(n); if (idx[k] !== undefined) return idx[k]; }
+  return -1;
+}
+
+function rowsFromAoA(aoa){
+  let hi = -1;
+  for (let i = 0; i < aoa.length; i++){
+    if ((aoa[i] || []).some(c => normHeader(c) === 'USERNAME')) { hi = i; break; }
+  }
+  if (hi === -1) return { rows: [], error: 'Baris header (USERNAME) tidak ditemukan di file.' };
+  const header = aoa[hi];
+  const cNama  = pickCol(header, ['NAMA']);
+  const cUser  = pickCol(header, ['USERNAME']);
+  const cTipe  = pickCol(header, ['TIPE PENGGUNA', 'TIPE']);
+  const cNim   = pickCol(header, ['NIM']);
+  const cKelas = pickCol(header, ['KELAS']);
+  const cPeran = pickCol(header, ['PERAN', 'ROLE']);
+  const cPass  = pickCol(header, ['PASSWORD']);
+  if (cUser === -1) return { rows: [], error: 'Kolom USERNAME tidak ditemukan.' };
+  const out = [];
+  for (let i = hi + 1; i < aoa.length; i++){
+    const r = aoa[i]; if (!r) continue;
+    const get = j => (j >= 0 && r[j] !== undefined && r[j] !== null ? String(r[j]).trim() : '');
+    const username = get(cUser).toLowerCase().replace(/\s+/g, '');
+    const nama     = get(cNama);
+    if (!username && !nama) continue;
+    out.push({
+      nama: nama || username.toUpperCase(),
+      username,
+      tipe: get(cTipe).toLowerCase().includes('pegawai') ? 'pegawai' : 'mahasiswa',
+      nim: get(cNim),
+      kelas: get(cKelas),
+      peran: get(cPeran).toLowerCase().includes('admin') ? 'admin' : 'user',
+      password: get(cPass)
+    });
+  }
+  return { rows: out, error: null };
+}
+
+function parseCSVText(text){
+  const lines = String(text).split(/\r?\n/).filter(l => l.trim().length > 0);
+  if (lines.length === 0) return { rows: [], error: 'File CSV kosong.' };
+  const first = lines[0];
+  const delim = (first.split(';').length >= first.split(',').length) ? ';' : ',';
+  const aoa = lines.map(l => l.split(delim).map(c => c.replace(/^"|"$/g, '').trim()));
+  return rowsFromAoA(aoa);
+}
+
+function loadSheetJS(){
+  if (window.XLSX) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    sc.onload = () => resolve();
+    sc.onerror = () => reject(new Error('Gagal memuat pembaca Excel (cdn.jsdelivr.net). Simpan file sebagai CSV lalu unggah lagi.'));
+    document.head.appendChild(sc);
+  });
+}
+
+async function parseImportFile(file){
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (ext === 'csv') return parseCSVText(await file.text());
+  await loadSheetJS();
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type: 'array' });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+  return rowsFromAoA(aoa);
+}
+
+async function findUserByEmail(email){
+  const q = query(collection(db, 'users'), where('email', '==', email));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  return { id: d.id, ...d.data() };
+}
+
+function importExtra(r, role){
+  const extra = r.tipe === 'pegawai'
+    ? { tipe: 'pegawai', nim: '', kelas: '', nip: r.nim }
+    : { tipe: 'mahasiswa', nim: r.nim, kelas: r.kelas, nip: '' };
+  if (role === 'admin') Object.assign(extra, { nim: '', kelas: '', nip: '' });
+  return extra;
+}
+
+const importRowValid = r => /^[a-z0-9_.-]{3,}$/.test(r.username) && r.peran !== 'admin' && (!r.password || r.password.length >= 6);
+
+function renderImportPreview(){
+  const wrap = $('#importPreviewWrap');
+  const err  = $('#importError');
+  const tbody = $('#importPreview');
+  err.textContent = '';
+  if (!importRows.length){
+    wrap.style.display = 'none';
+    $('#importCount').textContent = '';
+    $('#btnRunImport').disabled = true;
+    return;
+  }
+  let ok = 0;
+  tbody.innerHTML = importRows.map(r => {
+    const valid = importRowValid(r);
+    if (valid) ok++;
+    const reason = !/^[a-z0-9_.-]{3,}$/.test(r.username) ? 'username salah' : (r.peran === 'admin' ? 'admin via menu Pengguna saja' : 'password < 6 karakter');
+    return `<tr><td class="code-cell">${esc(r.username)}</td><td>${esc(r.nama)}</td><td>${esc(r.kelas || '-')}</td><td>${esc(r.peran)}</td><td>${valid ? '<span class="badge tersedia">OK</span>' : `<span class="badge maintenance">${reason}</span>`}</td></tr>`;
+  }).join('');
+  wrap.style.display = 'block';
+  $('#importCount').textContent = `${ok} dari ${importRows.length} baris valid.`;
+  $('#btnRunImport').disabled = ok === 0;
+}
+
+async function runImport(){
+  const btn = $('#btnRunImport');
+  const err = $('#importError');
+  err.textContent = '';
+  const valid = importRows.filter(importRowValid);
+  btn.disabled = true;
+  const results = [];
+  let done = 0;
+  for (const r of valid){
+    done++;
+    btn.textContent = `Membuat akun ${done}/${valid.length}...`;
+    const password = (r.password && r.password.length >= 6) ? r.password : randomPassword(10);
+    const emailLocal = r.username.replace(/[^a-z0-9._-]/g, '');
+    const email = `${emailLocal}@siswa.mesinbook.app`;
+    try {
+      // Username sudah dipakai? -> TIMPA: perbarui profil akun lama (password/email tidak berubah)
+      const taken = await getDoc(doc(db, 'usernames', r.username));
+      if (taken.exists()){
+        const uid = taken.data().uid;
+        const existing = await getDoc(doc(db, 'users', uid));
+        const oldRole = existing.exists() ? (existing.data().role || 'user') : 'user';
+        if (oldRole === 'admin' && r.peran !== 'admin' && state.users.filter(x => x.role === 'admin').length <= 1){
+          results.push({ ...r, password: '(tetap)', status: 'GAGAL (admin terakhir tidak bisa diturunkan)' });
+          continue;
+        }
+        await updateDoc(doc(db, 'users', uid), { nama: r.nama, username: r.username, ...importExtra(r, r.peran), role: r.peran });
+        results.push({ ...r, password: '(tetap)', status: 'DITIMPA (profil diperbarui)' });
+        continue;
+      }
+      const sec = secondaryAuth();
+      const cred = await createUserWithEmailAndPassword(sec, email, password);
+      await setDoc(doc(db, 'users', cred.user.uid), { nama: r.nama, username: r.username, email, ...importExtra(r, r.peran), role: r.peran, createdAt: todayISO() });
+      await setDoc(doc(db, 'usernames', r.username), { uid: cred.user.uid, email });
+      await signOut(sec);
+      results.push({ ...r, password, status: 'OK' });
+    } catch (e) {
+      console.error(e);
+      // Email sudah dipakai di Auth tapi belum ada di usernames -> coba cari via koleksi users lalu timpa profilnya
+      if (e && e.code === 'auth/email-already-in-use'){
+        const existing = await findUserByEmail(email);
+        if (existing){
+          const oldRole = existing.role || 'user';
+          if (oldRole === 'admin' && r.peran !== 'admin' && state.users.filter(x => x.role === 'admin').length <= 1){
+            results.push({ ...r, password: '(tetap)', status: 'GAGAL (admin terakhir tidak bisa diturunkan)' });
+            continue;
+          }
+          await updateDoc(doc(db, 'users', existing.id), { nama: r.nama, username: r.username, ...importExtra(r, r.peran), role: r.peran });
+          await setDoc(doc(db, 'usernames', r.username), { uid: existing.id, email });
+          results.push({ ...r, password: '(tetap)', status: 'DITIMPA (profil diperbarui)' });
+          continue;
+        }
+        results.push({ ...r, password: '-', status: 'GAGAL (email sudah terdaftar, profil tidak ditemukan)' });
+        continue;
+      }
+      results.push({ ...r, password: '-', status: 'GAGAL: ' + (e && e.code ? e.code : 'error') });
+    }
+  }
+  importCredentials = results.filter(x => x.status === 'OK' || x.status === 'DITIMPA (profil diperbarui)');
+  $('#importResultBody').innerHTML = results.map(r => `
+    <tr><td class="code-cell">${esc(r.username)}</td><td>${esc(r.password)}</td><td>${esc(r.kelas || '-')}</td><td>${esc(r.status)}</td></tr>`).join('');
+  const okBaru = results.filter(x => x.status === 'OK').length;
+  const ditimpa = results.filter(x => x.status === 'DITIMPA (profil diperbarui)').length;
+  $('#importResultSummary').textContent = `${okBaru} akun baru dibuat, ${ditimpa} akun lama ditimpa (profil diperbarui; password & email akun lama tidak berubah). Email TIDAK perlu diverifikasi.`;
+  closeModal('importModal');
+  openModal('importResultModal');
+  renderUsers();
+}
+
+function credsCsv(){
+  const lines = ['NAMA;USERNAME;KELAS;PASSWORD;PERAN'];
+  for (const r of importCredentials){
+    lines.push([r.nama, r.username, r.kelas, r.password, r.peran].map(v => String(v ?? '').replace(/;/g, ',')).join(';'));
+  }
+  return '\uFEFF' + lines.join('\n');
+}
+
+/* =====================================================================
+   EVENT BINDING
+   ===================================================================== */
+// auth (login admin)
+$('#formLogin').addEventListener('submit', handleLogin);
+$('#btnForgotPassword').addEventListener('click', () => switchAuthTab('reset'));
+$('#formReset').addEventListener('submit', handleReset);
+$('#btnBackToLogin').addEventListener('click', () => switchAuthTab('login'));
+$('#btnOpenAdminLogin').addEventListener('click', openAdminLogin);
+$$('.toggle-pass').forEach(btn => btn.addEventListener('click', () => {
+  const input = $('#' + btn.dataset.togglePass);
+  input.type = input.type === 'password' ? 'text' : 'password';
+}));
+
+// navigasi
+// tab sub-menu gabungan (LCD | Ruang)
+$$('.nav-item[data-view]').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+$('#btnHamburger').addEventListener('click', () => { $('#sidebar').classList.add('open'); $('#sidebarOverlay').classList.add('show'); });
+$('#sidebarOverlay').addEventListener('click', () => { $('#sidebar').classList.remove('open'); $('#sidebarOverlay').classList.remove('show'); });
+$('#btnLogout').addEventListener('click', logout);
+
+// muat unit contoh (hanya muncul untuk admin saat database proyektor masih kosong)
+$('#btnSeedUnits').addEventListener('click', async () => {
+  try {
+    await Promise.all(UNIT_CONTOH.map(u => addDoc(collection(db, 'projectors'), u)));
+    showToast('8 unit contoh berhasil dimuat ke database.');
+  } catch (err) {
+    console.error(err);
+    showToast('Gagal memuat unit contoh. Periksa koneksi & hak akses.', 'error');
+  }
+});
+
+// proyektor
+$('#projSearch').addEventListener('input', renderProjectors);
+$('#projFilter').addEventListener('change', renderProjectors);
+$('#btnAddProjector').addEventListener('click', () => openProjectorModal(null));
+$('#formProjector').addEventListener('submit', handleProjectorSubmit);
+$('#roomAdminSearch').addEventListener('input', renderRuangData);
+$('#roomAdminFilter').addEventListener('change', renderRuangData);
+$('#btnAddRoom').addEventListener('click', () => openRoomModal(null));
+$('#formRoom').addEventListener('submit', handleRoomSubmit);
+document.addEventListener('click', e => {
+  const borrow = e.target.closest('[data-borrow]');
+  if (borrow){ switchView('pinjam'); const sel = $('#paketLcd'); if (sel) sel.value = borrow.dataset.borrow; return; }
+  const borrowRoom = e.target.closest('[data-borrow-room]');
+  if (borrowRoom){ switchView('pinjam'); const sel = $('#paketRuang'); if (sel) sel.value = borrowRoom.dataset.borrowRoom; return; }
+  const edit = e.target.closest('[data-edit]');
+  if (edit) return openProjectorModal(projectorById(edit.dataset.edit));
+  const editRoom = e.target.closest('[data-edit-room]');
+  if (editRoom) return openRoomModal(roomById(editRoom.dataset.editRoom));
+  const editUser = e.target.closest('[data-edit-user]');
+  if (editUser) return openUserModal(state.users.find(x => x.id === editUser.dataset.editUser));
+  const del = e.target.closest('[data-delete]');
+  if (del && !del.disabled) return deleteProjector(del.dataset.delete);
+  const delRoom = e.target.closest('[data-delete-room]');
+  if (delRoom && !delRoom.disabled) return deleteRoom(delRoom.dataset.deleteRoom);
+  const ret = e.target.closest('[data-return]');
+  if (ret) return returnLoan(ret.dataset.return);
+  const retRoom = e.target.closest('[data-return-room]');
+  if (retRoom) return returnRoomLoan(retRoom.dataset.returnRoom);
+  const retPaket = e.target.closest('[data-return-paket]');
+  if (retPaket){ submitReturn(resolveMemberCsv(retPaket.dataset.returnPaket)); return; }
+  const delPaket = e.target.closest('[data-del-paket]');
+  if (delPaket){ deleteTransactions(resolveMemberCsv(delPaket.dataset.delPaket)); return; }
+  const verifyBtn = e.target.closest('[data-verify]');
+  if (verifyBtn){ verifyReturn(resolveMemberCsv(verifyBtn.dataset.verify)); return; }
+  const rejectBtn = e.target.closest('[data-reject]');
+  if (rejectBtn){ rejectReturn(resolveMemberCsv(rejectBtn.dataset.reject)); return; }
+  const delUser = e.target.closest('[data-delete-user]');
+  if (delUser) return deleteUser(delUser.dataset.deleteUser);
+  const closeBtn = e.target.closest('[data-close-modal]');
+  if (closeBtn) return closeModal(closeBtn.dataset.closeModal);
+});
+
+// peminjaman paket (satu formulir: LCD & Ruang)
+function renderPaketDropdowns(){
+  const proj = (state.projectors || []).filter(p => p.status === 'tersedia').sort((a, b) => String(a.kode).localeCompare(String(b.kode)));
+  const rooms = (state.rooms || []).filter(r => r.status === 'tersedia').sort((a, b) => String(a.kode).localeCompare(String(b.kode)));
+  const lcdSel = $('#paketLcd');
+  const ruangSel = $('#paketRuang');
+  const lcdVal = lcdSel ? lcdSel.value : '';
+  const ruangVal = ruangSel ? ruangSel.value : '';
+  if (lcdSel){
+    lcdSel.innerHTML = '<option value="">-- Pilih LCD yang tersedia --</option>' +
+      proj.map(p => `<option value="${p.id}">${esc(p.kode)} - ${esc(p.nama)}</option>`).join('');
+    if (lcdVal) lcdSel.value = lcdVal;
+  }
+  if (ruangSel){
+    ruangSel.innerHTML = '<option value="">-- Pilih Ruangan yang tersedia --</option>' +
+      rooms.map(r => `<option value="${r.id}">${esc(r.kode)} - ${esc(r.nama)} (kapasitas ${esc(r.kapasitas || '-')})</option>`).join('');
+    if (ruangVal) ruangSel.value = ruangVal;
+  }
+}
+
+async function handlePaketSubmit(e){
+  e.preventDefault();
+  const nama = $('#paketNama').value.trim();
+  const nim = $('#paketNim').value.trim();
+  const kelas = $('#paketKelas').value.trim();
+  const mataKuliah = $('#paketMataKuliah').value.trim();
+  const projectorId = $('#paketLcd').value;
+  const roomId = $('#paketRuang').value;
+  const tgl = $('#paketTgl').value;
+  const jam = $('#paketJam').value;
+
+  if (!nama || nama.length < 3) return showToast('Nama lengkap minimal 3 karakter.', 'error');
+  if (!nimValid(nim)) return showToast('NIM wajib diisi (angka, maks 9 digit).', 'error');
+  if (!kelas) return showToast('Kelas wajib diisi.', 'error');
+  if (!mataKuliah) return showToast('Mata kuliah wajib diisi.', 'error');
+  if (!projectorId && !roomId) return showToast('Pilih minimal satu: LCD atau Ruangan.', 'error');
+  if (!tgl || !jam) return showToast('Tanggal dan jam pinjam wajib diisi.', 'error');
+
+  const mulai = `${tgl}T${jam}`;
+  try {
+    await runTransaction(db, async (tx) => {
+      const pRef = projectorId ? doc(db, 'projectors', projectorId) : null;
+      const rRef = roomId ? doc(db, 'rooms', roomId) : null;
+      if (pRef){
+        const snap = await tx.get(pRef);
+        if (!snap.exists() || snap.data().status !== 'tersedia') throw new Error('UNIT_TAKEN');
+      }
+      if (rRef){
+        const snap = await tx.get(rRef);
+        if (!snap.exists() || snap.data().status !== 'tersedia') throw new Error('UNIT_TAKEN');
+      }
+      const borrower = {
+        userId: currentUser.id,
+        borrowerNama: nama,
+        borrowerTipe: 'mahasiswa',
+        borrowerNim: nim,
+        borrowerNip: '',
+        borrowerKelas: kelas,
+        mataKuliah
+      };
+      if (pRef){
+        tx.update(pRef, { status: 'dipinjam' });
+        tx.set(doc(collection(db, 'loans')), {
+          projectorId,
+          ...borrower,
+          tglPinjam: mulai,
+          tglKembali: null,
+          status: 'dipinjam'
+        });
+      }
+      if (rRef){
+        tx.update(rRef, { status: 'dipinjam' });
+        tx.set(doc(collection(db, 'room_loans')), {
+          roomId,
+          ...borrower,
+          tglPinjam: mulai,
+          tglKembali: null,
+          status: 'dipinjam'
+        });
+      }
+    });
+    showToast('Peminjaman berhasil diproses. Terima kasih!');
+    $('#formPaketPinjam').reset();
+    $('#paketTgl').value = dateOnlyFromOffset(0);
+    $('#paketTgl').min = dateOnlyFromOffset(0);
+    $('#paketJam').value = padTime(new Date());
+    renderPaketDropdowns();
+  } catch (err) {
+    console.error(err);
+    if (err && err.message === 'UNIT_TAKEN'){
+      showToast('Item baru saja dipinjam orang lain. Pilih item lain.', 'error');
+      renderPaketDropdowns();
+    } else {
+      showToast('Gagal memproses peminjaman. Periksa koneksi kamu.', 'error');
+    }
+  }
+}
+$('#formPaketPinjam').addEventListener('submit', handlePaketSubmit);
+
+// peminjaman
+$('#loanSearch').addEventListener('input', renderLoans);
+$$('#loanPills .pill').forEach(pill => pill.addEventListener('click', () => {
+  loanFilter = pill.dataset.loanFilter;
+  $$('#loanPills .pill').forEach(p => p.classList.toggle('active', p === pill));
+  renderLoans();
+}));
+
+// laporan
+$('#reportFrom').addEventListener('change', renderReport);
+$('#reportTo').addEventListener('change', renderReport);
+$('#reportStatus').addEventListener('change', renderReport);
+$('#btnPrintReport').addEventListener('click', () => { buildPrintReport(); window.print(); });
+$('#btnExportReport').addEventListener('click', exportReportCsv);
+
+// NIM: ketik otomatis hanya angka & maks 9 digit
+// Huruf besar otomatis untuk nama, kelas & mata kuliah
+['paketNama', 'paketKelas', 'paketMataKuliah', 'accNama', 'newUserNama'].forEach(id => $('#' + id).addEventListener('input', e => {
+  const pos = e.target.selectionStart;
+  e.target.value = e.target.value.toUpperCase();
+  try { e.target.setSelectionRange(pos, pos); } catch (err) {}
+}));
+
+['accNim', 'newUserNim', 'paketNim'].forEach(id => $('#' + id).addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 9);
+}));
+
+// pengguna
+$('#userSearch').addEventListener('input', renderUsers);
+$('#newUserRole').addEventListener('change', e => {
+  const butuh = e.target.value === 'user';
+  $('#newUserNimReq').style.display = butuh ? '' : 'none';
+  $('#newUserKelasReq').style.display = butuh ? '' : 'none';
+  $('#newUserNipReq').style.display = butuh ? '' : 'none';
+});
+$('#accTipe').addEventListener('change', () => applyTipeVisibility('acc'));
+$('#newUserTipe').addEventListener('change', () => applyTipeVisibility('newUser'));
+$('#formPengembalianCari').addEventListener('submit', e => { e.preventDefault(); renderPengembalian(); });
+$('#pengembalianQuery').addEventListener('input', renderPengembalian);
+$('#btnAddUser').addEventListener('click', () => openUserModal());
+$('#btnSendReset').addEventListener('click', async () => {
+  const email = $('#newUserEmail').value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast('Email akun tidak valid.', 'error');
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showToast('Link reset password terkirim ke email akun tersebut.');
+  } catch (err) {
+    console.error(err);
+    showToast('Gagal mengirim link reset. Coba lagi.', 'error');
+  }
+});
+$('#btnImportUsers').addEventListener('click', () => {
+  importRows = [];
+  $('#importFile').value = '';
+  $('#importError').textContent = '';
+  $('#importCount').textContent = '';
+  $('#importPreviewWrap').style.display = 'none';
+  $('#btnRunImport').disabled = true;
+  $('#btnRunImport').textContent = 'Buat Semua Akun';
+  openModal('importModal');
+});
+$('#importFile').addEventListener('change', async e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  $('#importError').textContent = 'Membaca file...';
+  try {
+    const { rows, error } = await parseImportFile(file);
+    if (error){ $('#importError').textContent = error; importRows = []; }
+    else importRows = rows;
+  } catch (err) {
+    console.error(err);
+    $('#importError').textContent = (err && err.message) ? err.message : 'Gagal membaca file.';
+    importRows = [];
+  }
+  renderImportPreview();
+});
+$('#btnRunImport').addEventListener('click', runImport);
+$('#btnDownloadCreds').addEventListener('click', () => {
+  const blob = new Blob([credsCsv()], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'akun-mesinbook.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+$('#btnCopyCreds').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(credsCsv().replace(/^\uFEFF/, '')); showToast('Daftar akun disalin ke clipboard.'); }
+  catch { showToast('Gagal menyalin. Gunakan Unduh CSV.', 'error'); }
+});
+$('#formUser').addEventListener('submit', handleUserSubmit);
+
+// akun saya
+$('#btnMyAccount').addEventListener('click', openAccountModal);
+$('#formAccount').addEventListener('submit', handleAccountSubmit);
+
+// konfirmasi generik
+$('#confirmYesBtn').addEventListener('click', () => {
+  closeModal('confirmModal');
+  if (typeof confirmCallback === 'function'){ const cb = confirmCallback; confirmCallback = null; cb(); }
+});
+
+// tutup modal via klik backdrop / tombol Escape
+$$('.modal-overlay').forEach(overlay => overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay.id); }));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') $$('.modal-overlay.show').forEach(m => closeModal(m.id));
+});
+
+/* =====================================================================
+   BOOT — autentikasi & langganan data
+   ===================================================================== */
+if (!isConfigured()){
+  const w = $('#configWarning');
+  if (w) w.classList.remove('hidden');
+  $('#authScreen').classList.remove('hidden');
+  $('#appScreen').classList.add('hidden');
+}
+
+onAuthStateChanged(auth, async (fbUser) => {
+  // belum ada sesi? masuk diam-diam sebagai pengunjung (anonymous)
+  if (!fbUser){
+    stopSubscriptions();
+    currentUser = null;
+    $('#appScreen').classList.add('hidden');
+    $('#authScreen').classList.remove('hidden');
+    switchAuthTab('login');
+    return;
+  }
+
+  // sesi anonim lama (dari versi sebelumnya) — keluarkan, kembali ke layar login
+  if (fbUser.isAnonymous){
+    await signOut(auth);
+    return;
+  }
+
+  // admin (email + password)
+  try {
+    const snap = await getDoc(doc(db, 'users', fbUser.uid));
+    const data = snap.exists() ? snap.data() : null;
+    if (data && data.role === 'admin' && fbUser.emailVerified){
+      currentUser = { id: fbUser.uid, ...data };
+      startSubscriptions();
+      enterApp();
+      return;
+    }
+    if (data && data.role === 'user'){
+      currentUser = { id: fbUser.uid, ...data };
+      startSubscriptions();
+      enterApp();
+      return;
+    }
+    if (data && data.role === 'admin' && !fbUser.emailVerified){
+      showToast('Email admin belum diverifikasi. Cek inbox email kamu.', 'warning');
+    } else {
+      showToast('Akun ini bukan admin — dibuka sebagai pengunjung.', 'warning');
+    }
+    // bukan admin terverifikasi → kembali ke mode kiosk
+    await signOut(auth);
+  } catch (err) {
+    console.error(err);
+    await signOut(auth).catch(() => {});
+    showToast('Gagal terhubung ke server. Periksa koneksi internet.', 'error');
+  }
+});
+</script>
+</body>
+</html>
