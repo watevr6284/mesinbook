@@ -781,6 +781,13 @@ tbody tr:hover{background:#FCFCFA}
             </div>
             <div class="card-body" id="statPerKelas"></div>
           </div>
+          <div class="card admin-only">
+            <div class="card-head">
+              <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="15" cy="12" r="1"/></svg>Ruangan Dipinjam Sekarang</h3>
+              <span class="count-pill" id="ruangDipinjamCount">0</span>
+            </div>
+            <div class="card-body" id="ruangDipinjamList"></div>
+          </div>
         </div>
       </section>
 
@@ -1632,6 +1639,26 @@ function renderDashboard(){
           <span class="kelas-name">${esc(kelas)}</span>
           <div class="kelas-bar"><span style="width:${Math.round(n / max * 100)}%"></span></div>
           <span class="kelas-count">${n}</span>
+        </div>`).join('');
+  }
+
+  const ruangEl = $('#ruangDipinjamList');
+  if (ruangEl && mine){
+    const dipinjam = state.rooms.filter(r => r.status === 'dipinjam');
+    $('#ruangDipinjamCount').textContent = String(dipinjam.length);
+    const rows = dipinjam
+      .map(room => ({ room, loan: state.roomLoans.find(l => l.roomId === room.id && l.status === 'dipinjam') }))
+      .sort((a, b) => String(b.loan ? b.loan.tglPinjam : '').localeCompare(String(a.loan ? a.loan.tglPinjam : '')));
+    ruangEl.innerHTML = rows.length === 0
+      ? '<div class="empty-state"><p>Semua ruang sedang <b>Tersedia</b>.</p></div>'
+      : rows.map(({ room, loan }) => `
+        <div class="recent-item">
+          <span class="recent-dot"></span>
+          <div class="recent-info">
+            <div class="recent-title">${esc(room.kode + ' - ' + room.nama)}</div>
+            <div class="recent-sub">oleh ${loan ? esc(borrowerName(loan)) : '-'}${loan && loan.tglPinjam ? ' · ' + esc(fmtDate(loan.tglPinjam)) : ''}</div>
+          </div>
+          <span class="badge dipinjam">Dipinjam</span>
         </div>`).join('');
   }
 
