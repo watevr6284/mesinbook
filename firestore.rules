@@ -1,0 +1,91 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // hanya akun Email/Password (admin & akun kelas) — akun anonim TIDAK diizinkan
+    function signedIn() {
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'password';
+    }
+    // email terverifikasi — hanya untuk akun admin (email/password)
+    function verified() {
+      return signedIn() && request.auth.token.email_verified == true;
+    }
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function isAdmin() {
+      return verified() && userDoc().role == 'admin';
+    }
+    // hanya kolom 'status' yang berubah (dipakai pinjam unit)
+    function onlyStatusChanges() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+    }
+    // pengembalian oleh peminjam: hanya dipinjam -> menunggu_verifikasi + tglKembali
+    function onlySubmitReturnChanges() {
+      return resource.data.status == 'dipinjam'
+        && request.resource.data.status == 'menunggu_verifikasi'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'tglKembali']);
+    }
+
+    // --- data profil pengguna (hanya dipakai admin & dirinya sendiri) ---
+    match /users/{uid} {
+      allow read: if isAdmin()
+        || (signedIn() && request.auth.uid == uid); // dirinya sendiri (perlu saat cek admin setelah login)
+      // akun baru hanya dibuat oleh admin (lewat menu Pengguna)
+      allow create: if isAdmin();
+      allow update: if isAdmin()
+        || (verified() && request.auth.uid == uid);
+      allow delete: if isAdmin();
+    }
+
+    // --- penjaga keunikan username (doc id = username) ---
+    match /usernames/{name} {
+      // DIBACA PUBLIK: alur login perlu resolve username -> email SEBELUM sign-in
+      // (login username butuh lookup doc ini tanpa autentikasi terlebih dahulu).
+      allow read: if true;
+      allow create: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // --- unit ruangan ---
+    match /rooms/{id} {
+      allow read: if signedIn();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (signedIn() && onlyStatusChanges()); // pinjam mengubah status saja
+    }
+
+    // --- transaksi peminjaman ruangan ---
+    match /room_loans/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'dipinjam';
+      // kiosk hanya boleh mengajukan pengembalian (menunggu_verifikasi);
+      // verifikasi (dikembalikan) & penolakan hanya oleh admin
+      allow update: if isAdmin()
+        || (signedIn() && onlySubmitReturnChanges());
+      allow delete: if isAdmin();              // hanya admin yang bisa menghapus riwayat
+    }
+
+    // --- unit LCD proyektor ---
+    match /projectors/{id} {
+      allow read: if signedIn();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (signedIn() && onlyStatusChanges()); // pinjam mengubah status saja
+    }
+
+    // --- transaksi peminjaman ---
+    match /loans/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'dipinjam';
+      allow update: if isAdmin()
+        || (signedIn() && onlySubmitReturnChanges());
+      allow delete: if isAdmin();              // hanya admin yang bisa menghapus riwayat
+    }
+  }
+}

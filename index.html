@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Sistem peminjaman dan pengembalian LCD proyektor & ruangan dengan peran admin & pengunjung, manajemen inventaris, peminjaman fasilitas, dan laporan.">
+<meta name="description" content="Sistem peminjaman dan pengembalian LCD proyektor & ruangan Teknik Mesin — dengan akun kelas (mahasiswa) dan admin, manajemen inventaris, peminjaman fasilitas, dan laporan PDF.">
 <title>MESINBOOK — Booking Fasilitas Teknik Mesin</title>
 <link rel="icon" href="logo-kecil.webp">
 <meta name="theme-color" content="#F59E0B">
@@ -1512,7 +1512,7 @@ function enterApp(){
   // chip pengguna di topbar
   const isMember = user.role === 'user';
   const isFull = isAdmin || isMember;
-  $('#chipName').textContent = isFull ? user.nama : 'Pengunjung';
+  $('#chipName').textContent = isFull ? user.nama : 'Pengguna';
   $('#avatarInitial').textContent = isFull ? user.nama.trim().charAt(0).toUpperCase() : 'P';
   const roleEl = $('#chipRole');
   roleEl.textContent = isAdmin ? 'Administrator' : (user.tipe === 'pegawai' ? 'Pegawai' : 'Mahasiswa');
@@ -1548,7 +1548,7 @@ function enterApp(){
 }
 
 function switchView(view){
-  // pengunjung hanya boleh membuka 2 menu
+  // non-admin hanya bisa membuka menu pinjam, pengembalian, dashboard & pinjaman-saya
   if (!currentUser || (currentUser.role !== 'admin' && !['pinjam', 'pengembalian', 'dashboard', 'pinjaman-saya'].includes(view))) view = 'pinjam';
   currentView = view;
   $$('.view').forEach(v => v.classList.remove('active'));
@@ -1973,7 +1973,7 @@ function renderPengembalian(){
 }
 
 /* =====================================================================
-   RENDER: RUANG (Pengunjung & Admin)
+   RENDER: DATA RUANG (ADMIN)
    ===================================================================== */
 
 
@@ -3137,7 +3137,7 @@ if (!isConfigured()){
 }
 
 onAuthStateChanged(auth, async (fbUser) => {
-  // belum ada sesi? masuk diam-diam sebagai pengunjung (anonymous)
+  // belum ada sesi? tampilkan layar login
   if (!fbUser){
     stopSubscriptions();
     currentUser = null;
@@ -3172,9 +3172,9 @@ onAuthStateChanged(auth, async (fbUser) => {
     if (data && data.role === 'admin' && !fbUser.emailVerified){
       showToast('Email admin belum diverifikasi. Cek inbox email kamu.', 'warning');
     } else {
-      showToast('Akun ini bukan admin — dibuka sebagai pengunjung.', 'warning');
+      showToast('Akun ini tidak bisa masuk. Kemungkinan email admin belum diverifikasi — cek inbox email.', 'warning');
     }
-    // bukan admin terverifikasi → kembali ke mode kiosk
+    // tidak berhak masuk — kembali ke layar login
     await signOut(auth);
   } catch (err) {
     console.error(err);
