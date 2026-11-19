@@ -1965,11 +1965,16 @@ function renderPengembalian(){
   tbody.innerHTML = rows.length === 0
     ? `<tr><td colspan="10"><div class="empty-state"><p>${q ? 'Tidak ada data yang cocok dengan pencarian.' : '<b>Belum ada peminjaman.</b>'}</p></div></td></tr>`
     : rows.map(l => {
-        const pending = l.anggota.filter(x => x.status === 'dipinjam');
+        const pendingAll = l.anggota.filter(x => x.status === 'dipinjam');
         const waiting = l.anggota.filter(x => x.status === 'menunggu_verifikasi');
+        const isAdminPengembalian = currentUser && currentUser.role === 'admin';
+        const myUid = currentUser && currentUser.id;
+        // member hanya melihat tombol Kembalikan untuk pinjaman milik akunnya sendiri
+        const pending = isAdminPengembalian
+          ? pendingAll
+          : pendingAll.filter(x => x.userId === myUid);
         const csvPending = pending.map(m => m.jenis + ':' + m.id).join(',');
         const csvWaiting = waiting.map(m => m.jenis + ':' + m.id).join(',');
-        const isAdminPengembalian = currentUser && currentUser.role === 'admin';
         const [tgl, jam] = String(l.tglPinjam || '').split('T');
         return `
         <tr>
@@ -1990,8 +1995,8 @@ function renderPengembalian(){
               ${waiting.length && isAdminPengembalian
                 ? `<button class="mini-btn" data-verify="${csvWaiting}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 10"/></svg>Verifikasi</button><button class="mini-btn danger" data-reject="${csvWaiting}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Tolak</button>`
                 : ''}
-              ${!pending.length && waiting.length && !isAdminPengembalian ? '<span style="color:var(--amber-deep);font-size:.72rem;font-weight:800">MENUNGGU VERIFIKASI</span>' : ''}
-              ${!pending.length && !waiting.length ? '<span style="color:var(--muted);font-size:.75rem">Selesai</span>' : ''}
+              ${!pendingAll.length && waiting.length && !isAdminPengembalian ? '<span style="color:var(--amber-deep);font-size:.72rem;font-weight:800">MENUNGGU VERIFIKASI</span>' : ''}
+              ${!pendingAll.length && !waiting.length ? '<span style="color:var(--muted);font-size:.75rem">Selesai</span>' : ''}
               ${isAdminPengembalian ? hapusPaketBtnHTML(l) : ''}
             </div>
           </td>
