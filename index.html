@@ -829,6 +829,10 @@ tbody tr:hover{background:#FCFCFA}
             <option value="dipinjam">Dipinjam</option>
             <option value="maintenance">Maintenance</option>
           </select>
+          <button class="btn btn-ghost admin-only" id="btnRepairRooms" title="Ruang berstatus Dipinjam tapi tidak punya transaksi aktif akan dikembalikan ke Tersedia">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4.5 4.5 0 0 0-6.4 6.4l-6.6 6.6a2 2 0 1 0 2.8 2.8l6.6-6.6a4.5 4.5 0 0 0 6.4-6.4L13.4 12l-2-2 3.3-3.7z"/></svg>
+            Perbaiki Status
+          </button>
           <button class="btn btn-dark admin-only" id="btnAddRoom">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Tambah Ruangan
@@ -1987,6 +1991,31 @@ function renderPengembalian(){
 /* =====================================================================
    RENDER: DATA RUANG (ADMIN)
    ===================================================================== */
+function repairRoomStatuses(){
+  if (!currentUser || currentUser.role !== 'admin') return showToast('Hanya admin yang bisa memperbaiki status.', 'error');
+  const dipinjam = state.rooms.filter(r => r.status === 'dipinjam');
+  if (!dipinjam.length) return showToast('Tidak ada ruang berstatus Dipinjam.');
+  const aktif = new Set(state.roomLoans.filter(l => l.status === 'dipinjam').map(l => l.roomId));
+  const orphans = dipinjam.filter(r => !aktif.has(r.id));
+  if (!orphans.length)
+    return showToast('Semua ruang Dipinjam masih punya transaksi aktif — tidak ada yang perlu diperbaiki.', 'info');
+  const list = orphans.map(r => r.kode + ' — ' + r.nama).join('<br>');
+  openConfirm('Perbaiki Status Ruang',
+    `<b>${orphans.length} ruang</b> berstatus <b>Dipinjam</b> tapi tidak punya transaksi aktif (menggantung). Ruang ini akan ditandai <b>Tersedia</b>:<br>${list}`,
+    'Ya, Perbaiki',
+    async () => {
+      try {
+        const batch = writeBatch(db);
+        orphans.forEach(r => batch.update(doc(db, 'rooms', r.id), { status: 'tersedia' }));
+        await batch.commit();
+        showToast(orphans.length + ' ruang diperbaiki ke Tersedia.');
+      } catch (err) {
+        console.error(err);
+        showToast('Gagal memperbaiki. Coba lagi.', 'error');
+      }
+    });
+}
+
 function renderRuangData(){
   const q = ($('#roomAdminSearch').value || '').trim().toLowerCase();
   const filter = $('#roomAdminFilter').value;
@@ -2892,6 +2921,7 @@ $('#btnAddProjector').addEventListener('click', () => openProjectorModal(null));
 $('#formProjector').addEventListener('submit', handleProjectorSubmit);
 $('#roomAdminSearch').addEventListener('input', renderRuangData);
 $('#roomAdminFilter').addEventListener('change', renderRuangData);
+$('#btnRepairRooms').addEventListener('click', repairRoomStatuses);
 $('#btnAddRoom').addEventListener('click', () => openRoomModal(null));
 $('#formRoom').addEventListener('submit', handleRoomSubmit);
 document.addEventListener('click', e => {
