@@ -1662,21 +1662,21 @@ function renderDashboard(){
         </div>`).join('');
   }
 
-  const recent = [...myLoans].sort((a, b) => String(b.tglPinjam).localeCompare(String(a.tglPinjam))).slice(0, 6);
+  const recent = mergedTransactions(myLoans).sort((a, b) => String(b.tglPinjam).localeCompare(String(a.tglPinjam))).slice(0, 6);
   $('#recentLoans').innerHTML = recent.length === 0
     ? `<div class="empty-state"><p>Belum ada aktivitas peminjaman.</p></div>`
     : recent.map(l => {
-        const p = projectorById(l.projectorId);
         const done = l.status === 'dikembalikan';
-        const who = ` oleh ${esc(borrowerName(l))}`;
+        const who = ` oleh ${esc(l.borrowerNama || '-')}`;
+        const items = [l.lcdText !== '-' ? l.lcdText : '', l.ruangText !== '-' ? l.ruangText : ''].filter(Boolean).join(' + ');
         return `
         <div class="recent-item">
           <span class="recent-dot ${done ? 'done' : ''}"></span>
           <div class="recent-info">
-            <div class="recent-title">${esc(p ? p.kode + ' - ' + p.nama : 'Unit terhapus')}</div>
-            <div class="recent-sub">${done ? 'Dikembalikan' : 'Dipinjam'}${who} &#183; ${fmtDate(l.tglPinjam)}</div>
+            <div class="recent-title">${esc(items || '-')}</div>
+            <div class="recent-sub">${done ? 'Dikembalikan' : l.status === 'menunggu_verifikasi' ? 'Menunggu Verifikasi' : 'Dipinjam'}${who} &#183; ${fmtDate(l.tglPinjam)}</div>
           </div>
-          ${loanStatusBadge(l)}
+          ${mergedStatusBadge(l)}
         </div>`;
       }).join('');
 }
