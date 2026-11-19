@@ -1591,9 +1591,10 @@ function renderDashboard(){
   const ruangDipinjam = state.rooms.filter(r => r.status === 'dipinjam').length;
   const ruangTersedia = state.rooms.filter(r => r.status === 'tersedia').length;
 
-  const myLoans    = visibleLoans();
-  const aktifSaya  = myLoans.filter(l => l.status === 'dipinjam').length;
-  const selesaiSaya= myLoans.filter(l => l.status === 'dikembalikan').length;
+  const myLoans    = visibleMerged();
+  const myMerged   = mergedTransactions(myLoans);
+  const aktifSaya  = myMerged.filter(l => l.status === 'dipinjam').length;
+  const selesaiSaya= myMerged.filter(l => l.status === 'dikembalikan').length;
 
   const icon = (p, cls) => `<div class="stat-icon ${cls}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg></div>`;
   const iconBox  = '<rect x="2" y="7" width="20" height="11" rx="2.5"/><circle cx="9" cy="12.5" r="2.6"/>';
@@ -1662,7 +1663,7 @@ function renderDashboard(){
         </div>`).join('');
   }
 
-  const recent = mergedTransactions(myLoans).sort((a, b) => String(b.tglPinjam).localeCompare(String(a.tglPinjam))).slice(0, 6);
+  const recent = [...myMerged].sort((a, b) => String(b.tglPinjam).localeCompare(String(a.tglPinjam))).slice(0, 6);
   $('#recentLoans').innerHTML = recent.length === 0
     ? `<div class="empty-state"><p>Belum ada aktivitas peminjaman.</p></div>`
     : recent.map(l => {
