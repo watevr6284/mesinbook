@@ -1655,7 +1655,7 @@ function renderDashboard(){
         <div class="recent-item">
           <span class="recent-dot"></span>
           <div class="recent-info">
-            <div class="recent-title">${esc(room.kode + ' - ' + room.nama)}</div>
+            <div class="recent-title">${esc(room.nama)}</div>
             <div class="recent-sub">oleh ${loan ? esc(borrowerName(loan)) : '-'}${loan && loan.tglPinjam ? ' · ' + esc(fmtDate(loan.tglPinjam)) : ''}</div>
           </div>
           <span class="badge dipinjam">Dipinjam</span>
@@ -1755,7 +1755,7 @@ const mergedTransactions = rows => {
     const lcdM = g.filter(x => x.jenis === 'lcd');
     const ruangM = g.filter(x => x.jenis === 'ruang');
     const lcdText = lcdM.map(x => { const p = projectorById(x.projectorId); return p ? (p.kode + ' - ' + p.nama) : '-'; }).filter(Boolean).join(', ') || '-';
-    const ruangText = ruangM.map(x => { const r = roomById(x.roomId); return r ? (r.kode + ' - ' + r.nama) : '-'; }).filter(Boolean).join(', ') || '-';
+    const ruangText = ruangM.map(x => { const r = roomById(x.roomId); return r ? r.nama : '-'; }).filter(Boolean).join(', ') || '-';
     const returnedArr = g.map(x => x.tglKembali).filter(Boolean).sort();
     const allDikembalikan = g.every(x => x.status === 'dikembalikan');
     const anyDipinjam = g.some(x => x.status === 'dipinjam');
@@ -2128,7 +2128,7 @@ function notifyReturnEmail(members){
     const first = members[0] || {};
     const items = members.map(m => {
       const it = m.jenis === 'ruang' ? roomById(m.roomId) : projectorById(m.projectorId);
-      return it ? (it.kode + ' - ' + it.nama) : (m.jenis === 'ruang' ? 'Ruang' : 'LCD');
+      return it ? (m.jenis === 'ruang' ? it.nama : (it.kode + ' - ' + it.nama)) : (m.jenis === 'ruang' ? 'Ruang' : 'LCD');
     }).join(', ');
     const payload = {
       _subject: 'MESINBOOK: Pengembalian menunggu verifikasi — ' + (first.borrowerNama || '-'),
@@ -2158,7 +2158,7 @@ function submitReturn(members){
   const waktu = fmtDate(nowLocalValue());
   const items = members.map(m => {
     const it = m.jenis === 'ruang' ? roomById(m.roomId) : projectorById(m.projectorId);
-    return it ? (it.kode + ' - ' + it.nama) : (m.jenis === 'ruang' ? 'Ruang' : 'LCD');
+    return it ? (m.jenis === 'ruang' ? it.nama : (it.kode + ' - ' + it.nama)) : (m.jenis === 'ruang' ? 'Ruang' : 'LCD');
   }).join('<br>');
   openConfirm('Pengembalian',
     `Konfirmasi pengembalian berikut?<br><b>${items}</b><br>Status akan menjadi <b>Menunggu Verifikasi</b> (barang diperiksa admin).<br>Waktu pengembalian: <b>${waktu}</b>`,
@@ -2192,7 +2192,7 @@ function verifyReturn(members){
   if (!members.length) return showToast('Tidak ada item yang menunggu verifikasi.', 'error');
   const items = members.map(m => {
     const it = m.jenis === 'ruang' ? roomById(m.roomId) : projectorById(m.projectorId);
-    return it ? (it.kode + ' - ' + it.nama) : (m.jenis === 'ruang' ? 'Ruang' : 'LCD');
+    return it ? (m.jenis === 'ruang' ? it.nama : (it.kode + ' - ' + it.nama)) : (m.jenis === 'ruang' ? 'Ruang' : 'LCD');
   }).join('<br>');
   openConfirm('Verifikasi Pengembalian',
     `Verifikasi pengembalian item berikut?<br><b>${items}</b><br>Unit akan kembali berstatus <b>Tersedia</b>.`,
@@ -2240,7 +2240,7 @@ function returnRoomLoan(loanId){
   const loan = state.roomLoans.find(l => l.id === loanId);
   if (!loan || loan.status !== 'dipinjam') return;
   const r = roomById(loan.roomId);
-  const roomLabel = esc(r ? r.kode + ' - ' + r.nama : '');
+  const roomLabel = esc(r ? r.nama : '');
   const waktu = fmtDate(nowLocalValue());
   const pesan = `Konfirmasi pengembalian ruangan <b>${roomLabel}</b>?<br>Ruangan akan kembali berstatus <b>Tersedia</b>.<br>Waktu pengembalian: <b>${waktu}</b>`;
 
@@ -2414,7 +2414,7 @@ function deleteTransactions(members){
   const nim  = members[0].borrowerNim || members[0].borrowerNip || '-';
   const items = members.map(m => {
     const it = m.jenis === 'ruang' ? roomById(m.roomId) : projectorById(m.projectorId);
-    return it ? (it.kode + ' - ' + it.nama) : (m.jenis === 'ruang' ? 'Ruang (unit terhapus)' : 'LCD (unit terhapus)');
+    return it ? (m.jenis === 'ruang' ? it.nama : (it.kode + ' - ' + it.nama)) : (m.jenis === 'ruang' ? 'Ruang (unit terhapus)' : 'LCD (unit terhapus)');
   }).join(', ');
   const waktu = fmtDate(members[0].tglPinjam);
   const adaAktif = members.some(m => m.status === 'dipinjam');
@@ -2963,7 +2963,7 @@ function renderPaketDropdowns(){
   }
   if (ruangSel){
     ruangSel.innerHTML = '<option value="">-- Pilih Ruangan yang tersedia --</option>' +
-      rooms.map(r => `<option value="${r.id}">${esc(r.kode)} - ${esc(r.nama)} (kapasitas ${esc(r.kapasitas || '-')})</option>`).join('');
+      rooms.map(r => `<option value="${r.id}">${esc(r.nama)} (kapasitas ${esc(r.kapasitas || '-')})</option>`).join('');
     if (ruangVal) ruangSel.value = ruangVal;
   }
 }
