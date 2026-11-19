@@ -801,6 +801,10 @@ tbody tr:hover{background:#FCFCFA}
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             Muat 8 Unit Contoh
           </button>
+          <button class="btn btn-ghost admin-only" id="btnRepairProjectors" title="Unit berstatus Dipinjam tapi tidak punya transaksi aktif akan dikembalikan ke Tersedia">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4.5 4.5 0 0 0-6.4 6.4l-6.6 6.6a2 2 0 1 0 2.8 2.8l6.6-6.6a4.5 4.5 0 0 0 6.4-6.4L13.4 12l-2-2 3.3-3.7z"/></svg>
+            Perbaiki Status
+          </button>
           <button class="btn btn-dark admin-only" id="btnAddProjector">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Tambah Unit
@@ -1691,6 +1695,31 @@ function renderDashboard(){
 /* =====================================================================
    RENDER: DATA PROYEKTOR
    ===================================================================== */
+function repairProjectorStatuses(){
+  if (!currentUser || currentUser.role !== 'admin') return showToast('Hanya admin yang bisa memperbaiki status.', 'error');
+  const dipinjam = state.projectors.filter(p => p.status === 'dipinjam');
+  if (!dipinjam.length) return showToast('Tidak ada unit berstatus Dipinjam.');
+  const aktif = new Set(state.loans.filter(l => l.status === 'dipinjam').map(l => l.projectorId));
+  const orphans = dipinjam.filter(p => !aktif.has(p.id));
+  if (!orphans.length)
+    return showToast('Semua unit Dipinjam masih punya transaksi aktif — tidak ada yang perlu diperbaiki.', 'info');
+  const list = orphans.map(p => p.kode + ' — ' + p.nama).join('<br>');
+  openConfirm('Perbaiki Status Unit',
+    `<b>${orphans.length} unit</b> berstatus <b>Dipinjam</b> tapi tidak punya transaksi aktif (menggantung). Unit ini akan ditandai <b>Tersedia</b>:<br>${list}`,
+    'Ya, Perbaiki',
+    async () => {
+      try {
+        const batch = writeBatch(db);
+        orphans.forEach(p => batch.update(doc(db, 'projectors', p.id), { status: 'tersedia' }));
+        await batch.commit();
+        showToast(orphans.length + ' unit diperbaiki ke Tersedia.');
+      } catch (err) {
+        console.error(err);
+        showToast('Gagal memperbaiki. Coba lagi.', 'error');
+      }
+    });
+}
+
 function renderProjectors(){
   const q = ($('#projSearch').value || '').trim().toLowerCase();
   const filter = $('#projFilter').value;
@@ -3044,6 +3073,7 @@ $('#btnSeedUnits').addEventListener('click', async () => {
 // proyektor
 $('#projSearch').addEventListener('input', renderProjectors);
 $('#projFilter').addEventListener('change', renderProjectors);
+$('#btnRepairProjectors').addEventListener('click', repairProjectorStatuses);
 $('#btnAddProjector').addEventListener('click', () => openProjectorModal(null));
 $('#formProjector').addEventListener('submit', handleProjectorSubmit);
 $('#roomAdminSearch').addEventListener('input', renderRuangData);
