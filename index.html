@@ -1069,6 +1069,35 @@ tbody tr:hover{background:#FCFCFA}
   </div>
 </div>
 
+<!-- ============ MODAL: EDIT ASET PEMINJAMAN (ADMIN) ============ -->
+<div class="modal-overlay" id="editItemModal" role="dialog" aria-modal="true" aria-labelledby="editItemTitle">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="editItemTitle">Edit Aset Peminjaman</h3>
+      <button class="icon-btn" data-close-modal="editItemModal" aria-label="Tutup"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p class="hint" id="editItemPaket" style="margin-top:0"></p>
+      <div class="field" id="editLcdField">
+        <label for="editLcdSel">Nama LCD</label>
+        <select class="plain-input" id="editLcdSel"></select>
+        <div class="hint" id="editLcdHint">Hanya LCD berstatus Tersedia yang bisa dipilih.</div>
+      </div>
+      <div class="field" id="editRoomField">
+        <label for="editRoomSel">Nama Ruang</label>
+        <select class="plain-input" id="editRoomSel"></select>
+        <div class="hint" id="editRoomHint">Hanya Ruang berstatus Tersedia yang bisa dipilih.</div>
+      </div>
+      <p class="hint" style="margin-top:4px">Untuk peminjaman yang masih/akan diverifikasi, unit lama dilepas ke <b>Tersedia</b> dan unit baru diambil. Untuk yang sudah <b>Dikembalikan</b>, hanya referensi di riwayat yang diperbaiki.</p>
+      <div class="error-text" id="editItemError" role="alert"></div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-ghost" data-close-modal="editItemModal">Batal</button>
+      <button type="button" class="btn btn-primary" id="btnSaveItemEdit">Simpan Perubahan</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════ MODAL: KONFIRMASI GENERIK ═══════════════ -->
 <div class="modal-overlay" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
   <div class="modal modal-sm">
@@ -1719,6 +1748,7 @@ const mergedStatusBadge = l => l.status === 'dikembalikan'
     : '<span class="badge dipinjam">Dipinjam</span>';
 const trashIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
 const hapusPaketBtnHTML = l => `<button class="mini-btn danger" data-del-paket="${l.anggota.map(a => a.jenis + ':' + a.id).join(',')}">${trashIcon}Hapus</button>`;
+const editPaketBtnHTML = l => `<button class="mini-btn" data-edit-item="${l.anggota.map(a => a.jenis + ':' + a.id).join(',')}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L8 20l-5 1 1-5Z"/></svg>Edit</button>`;
 // Gabungkan paket pinjaman LCD + Ruang yang dibuat dalam satu pengajuan (sama: nama, NIM, kelas, mata kuliah, waktu pinjam)
 const mergedTransactions = rows => {
   const map = new Map();
@@ -1975,7 +2005,7 @@ function renderPengembalian(){
                 : ''}
               ${!pendingAll.length && waiting.length && !isAdminPengembalian ? '<span style="color:var(--amber-deep);font-size:.72rem;font-weight:800">MENUNGGU VERIFIKASI</span>' : ''}
               ${!pendingAll.length && !waiting.length ? '<span style="color:var(--muted);font-size:.75rem">Selesai</span>' : ''}
-              ${isAdminPengembalian ? hapusPaketBtnHTML(l) : ''}
+              ${isAdminPengembalian ? editPaketBtnHTML(l) + hapusPaketBtnHTML(l) : ''}
             </div>
           </td>
         </tr>`;
@@ -2157,6 +2187,103 @@ function notifyReturnEmail(members){
     }).catch(err => console.warn('Notifikasi email gagal:', err));
   } catch (err) {
     console.warn('notifyReturnEmail:', err);
+  }
+}
+
+let editItemMembers = [];
+
+function openItemEdit(csv){
+  if (!currentUser || currentUser.role !== 'admin') return showToast('Hanya admin yang bisa mengedit aset.', 'error');
+  const members = resolveMemberCsv(csv);
+  if (!members.length) return;
+  editItemMembers = members;
+  const first = members[0];
+  const lcdMember = members.find(m => m.jenis === 'lcd');
+  const roomMember = members.find(m => m.jenis === 'ruang');
+  $('#editItemPaket').innerHTML = `Paket milik <b>${esc(first.borrowerNama || '-')}</b> · ${esc(first.borrowerKelas || '-')} · ${esc(fmtDate(first.tglPinjam))}`;
+
+  const buildOptions = (items, currentId, statusOf) => items
+    .sort((a, b) => String(a.kode).localeCompare(String(b.kode)))
+    .map(it => {
+      const isCurrent = it.id === currentId;
+      const st = statusOf(it);
+      const tag = isCurrent ? ' (terpilih)' : (st !== 'tersedia' ? ` (${st === 'dipinjam' ? 'Dipinjam' : 'Maintenance'})` : '');
+      const dis = !isCurrent && st !== 'tersedia';
+      return `<option value="${it.id}" ${isCurrent ? 'selected' : ''} ${dis ? 'disabled' : ''}>${esc(it.kode + ' - ' + it.nama + tag)}</option>`;
+    }).join('');
+
+  const lcdField = $('#editLcdField');
+  if (lcdMember){
+    lcdField.classList.remove('hidden');
+    $('#editLcdSel').innerHTML = buildOptions([...state.projectors], lcdMember.projectorId, it => it.status);
+  } else {
+    lcdField.classList.add('hidden');
+  }
+  const roomField = $('#editRoomField');
+  if (roomMember){
+    roomField.classList.remove('hidden');
+    $('#editRoomSel').innerHTML = buildOptions([...state.rooms], roomMember.roomId, it => it.status);
+  } else {
+    roomField.classList.add('hidden');
+  }
+  $('#editItemError').textContent = '';
+  openModal('editItemModal');
+}
+
+async function saveItemEdit(){
+  if (!currentUser || currentUser.role !== 'admin') return;
+  const btn = $('#btnSaveItemEdit');
+  const errEl = $('#editItemError');
+  errEl.textContent = '';
+  const members = editItemMembers;
+  if (!members.length) return closeModal('editItemModal');
+  const lcdMember  = members.find(m => m.jenis === 'lcd');
+  const roomMember = members.find(m => m.jenis === 'ruang');
+  const newLcdId   = lcdMember  ? $('#editLcdSel').value  : null;
+  const newRoomId  = roomMember ? $('#editRoomSel').value : null;
+  const lcdChanged  = lcdMember  && newLcdId  !== lcdMember.projectorId;
+  const roomChanged = roomMember && newRoomId !== roomMember.roomId;
+  if (!lcdChanged && !roomChanged){
+    showToast('Tidak ada perubahan.', 'info');
+    return closeModal('editItemModal');
+  }
+  btn.disabled = true;
+  try {
+    await runTransaction(db, async (tx) => {
+      let lcdNew = null, roomNew = null;
+      if (lcdChanged){
+        lcdNew = await tx.get(doc(db, 'projectors', newLcdId));
+        if (!lcdNew.exists()) throw new Error('UNIT_GONE');
+        if (lcdMember.status !== 'dikembalikan' && lcdNew.data().status !== 'tersedia') throw new Error('UNIT_TAKEN');
+      }
+      if (roomChanged){
+        roomNew = await tx.get(doc(db, 'rooms', newRoomId));
+        if (!roomNew.exists()) throw new Error('ROOM_GONE');
+        if (roomMember.status !== 'dikembalikan' && roomNew.data().status !== 'tersedia') throw new Error('ROOM_TAKEN');
+      }
+      if (lcdChanged){
+        if (lcdMember.status !== 'dikembalikan'){
+          tx.update(doc(db, 'projectors', lcdMember.projectorId), { status: 'tersedia' });
+          tx.update(doc(db, 'projectors', newLcdId), { status: 'dipinjam' });
+        }
+        tx.update(doc(db, 'loans', lcdMember.id), { projectorId: newLcdId });
+      }
+      if (roomChanged){
+        if (roomMember.status !== 'dikembalikan'){
+          tx.update(doc(db, 'rooms', roomMember.roomId), { status: 'tersedia' });
+          tx.update(doc(db, 'rooms', newRoomId), { status: 'dipinjam' });
+        }
+        tx.update(doc(db, 'room_loans', roomMember.id), { roomId: newRoomId });
+      }
+    });
+    closeModal('editItemModal');
+    showToast('Aset peminjaman berhasil diperbarui.');
+  } catch (err) {
+    console.error(err);
+    const map = { UNIT_TAKEN: 'Pilih LCD yang masih Tersedia.', ROOM_TAKEN: 'Pilih Ruang yang masih Tersedia.', UNIT_GONE: 'LCD sudah tidak ada.', ROOM_GONE: 'Ruangan sudah tidak ada.' };
+    errEl.textContent = (err && map[err.message]) ? map[err.message] : 'Gagal menyimpan. Coba lagi.';
+  } finally {
+    btn.disabled = false;
   }
 }
 
@@ -2947,6 +3074,8 @@ document.addEventListener('click', e => {
   if (retPaket){ submitReturn(resolveMemberCsv(retPaket.dataset.returnPaket)); return; }
   const delPaket = e.target.closest('[data-del-paket]');
   if (delPaket){ deleteTransactions(resolveMemberCsv(delPaket.dataset.delPaket)); return; }
+  const editItem = e.target.closest('[data-edit-item]');
+  if (editItem){ openItemEdit(editItem.dataset.editItem); return; }
   const verifyBtn = e.target.closest('[data-verify]');
   if (verifyBtn){ verifyReturn(resolveMemberCsv(verifyBtn.dataset.verify)); return; }
   const rejectBtn = e.target.closest('[data-reject]');
@@ -3069,6 +3198,7 @@ $('#reportFrom').addEventListener('change', renderReport);
 $('#reportTo').addEventListener('change', renderReport);
 $('#reportStatus').addEventListener('change', renderReport);
 $('#btnPrintReport').addEventListener('click', () => { buildPrintReport(); window.print(); });
+$('#btnSaveItemEdit').addEventListener('click', saveItemEdit);
 $('#btnExportReport').addEventListener('click', exportReportCsv);
 
 // NIM: ketik otomatis hanya angka & maks 9 digit
