@@ -2963,7 +2963,7 @@ function renderPaketDropdowns(){
   }
   if (ruangSel){
     ruangSel.innerHTML = '<option value="">-- Pilih Ruangan yang tersedia --</option>' +
-      rooms.map(r => `<option value="${r.id}">${esc(r.nama)} (kapasitas ${esc(r.kapasitas || '-')})</option>`).join('');
+      rooms.map(r => `<option value="${r.id}">${esc(r.nama)}</option>`).join('');
     if (ruangVal) ruangSel.value = ruangVal;
   }
 }
