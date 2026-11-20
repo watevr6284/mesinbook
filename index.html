@@ -706,12 +706,12 @@ tbody tr:hover{background:#FCFCFA}
             <div class="form-row">
               <div class="field">
                 <label for="paketTgl">Tanggal Pinjam <span class="req">*</span></label>
-                <input class="plain-input" type="date" id="paketTgl" readonly>
+                <input class="plain-input" type="date" id="paketTgl">
                 <div class="hint" style="margin-top:2px">Otomatis: tanggal hari ini.</div>
               </div>
               <div class="field">
                 <label for="paketJam">Jam Pinjam <span class="req">*</span></label>
-                <input class="plain-input" type="time" id="paketJam" readonly>
+                <input class="plain-input" type="time" id="paketJam">
                 <div class="hint" style="margin-top:2px">Otomatis: jam saat ini.</div>
               </div>
             </div>
@@ -1568,11 +1568,15 @@ function enterApp(){
   }
   $('#btnOpenAdminLogin').classList.toggle('hidden', isFull);
 
-  // default tanggal & jam pada formulir paket pinjam (otomatis, tidak bisa diubah user)
+  // default tanggal & jam pada formulir paket pinjam (otomatis)
   const d = $('#paketTgl');
   const j = $('#paketJam');
   if (d){ d.value = dateOnlyFromOffset(0); d.min = dateOnlyFromOffset(0); }
   if (j){ j.value = padTime(new Date()); }
+  if (!isAdmin){
+    if (d) d.readOnly = true;
+    if (j) j.readOnly = true;
+  }
 
   // filter laporan default: 30 hari terakhir (admin)
   if (isAdmin){
