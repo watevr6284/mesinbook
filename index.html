@@ -706,11 +706,13 @@ tbody tr:hover{background:#FCFCFA}
             <div class="form-row">
               <div class="field">
                 <label for="paketTgl">Tanggal Pinjam <span class="req">*</span></label>
-                <input class="plain-input" type="date" id="paketTgl" required>
+                <input class="plain-input" type="date" id="paketTgl" readonly>
+                <div class="hint" style="margin-top:2px">Otomatis: tanggal hari ini.</div>
               </div>
               <div class="field">
                 <label for="paketJam">Jam Pinjam <span class="req">*</span></label>
-                <input class="plain-input" type="time" id="paketJam" required>
+                <input class="plain-input" type="time" id="paketJam" readonly>
+                <div class="hint" style="margin-top:2px">Otomatis: jam saat ini.</div>
               </div>
             </div>
             <div class="modal-foot" style="padding:0;margin-top:6px">
@@ -1566,13 +1568,11 @@ function enterApp(){
   }
   $('#btnOpenAdminLogin').classList.toggle('hidden', isFull);
 
-  // default tanggal & jam pada formulir paket pinjam
-  if (isAdmin || true){
-    const d = $('#paketTgl');
-    if (d && !d.value){ d.value = dateOnlyFromOffset(0); d.min = dateOnlyFromOffset(0); }
-    const j = $('#paketJam');
-    if (j) j.value = padTime(new Date());
-  }
+  // default tanggal & jam pada formulir paket pinjam (otomatis, tidak bisa diubah user)
+  const d = $('#paketTgl');
+  const j = $('#paketJam');
+  if (d){ d.value = dateOnlyFromOffset(0); d.min = dateOnlyFromOffset(0); }
+  if (j){ j.value = padTime(new Date()); }
 
   // filter laporan default: 30 hari terakhir (admin)
   if (isAdmin){
@@ -3152,7 +3152,6 @@ async function handlePaketSubmit(e){
   if (!kelas) return showToast('Kelas wajib diisi.', 'error');
   if (!mataKuliah) return showToast('Mata kuliah wajib diisi.', 'error');
   if (!projectorId && !roomId) return showToast('Pilih minimal satu: LCD atau Ruangan.', 'error');
-  if (!tgl || !jam) return showToast('Tanggal dan jam pinjam wajib diisi.', 'error');
 
   const mulai = `${tgl}T${jam}`;
   try {
