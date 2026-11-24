@@ -1913,6 +1913,8 @@ function renderLoans(){
     : loans.map(l => {
         const pendingLcd = l.anggota.filter(x => x.jenis === 'lcd' && x.status === 'dipinjam');
         const pendingRuang = l.anggota.filter(x => x.jenis === 'ruang' && x.status === 'dipinjam');
+        const pendingAllTx = [...pendingLcd, ...pendingRuang];
+        const csvPendingTx = pendingAllTx.map(m => m.jenis + ':' + m.id).join(',');
         return `
         <tr>
           <td><div class="unit-name">${esc(l.borrowerNama || '-')}</div></td>
@@ -1926,11 +1928,8 @@ function renderLoans(){
           <td>${mergedStatusBadge(l)}</td>
           <td>
             <div class="row-actions">
-              ${isAdmin && pendingLcd.length
-                ? `<button class="mini-btn" type="button" title="Kembalikan LCD" aria-label="Kembalikan LCD" data-return="${pendingLcd[0].id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg></button>`
-                : ''}
-              ${isAdmin && pendingRuang.length
-                ? `<button class="mini-btn" type="button" title="Kembalikan Ruang" aria-label="Kembalikan Ruang" data-return-room="${pendingRuang[0].id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg></button>`
+              ${isAdmin && pendingAllTx.length
+                ? `<button class="mini-btn" type="button" title="Kembalikan" aria-label="Kembalikan" data-return-paket-tx="${csvPendingTx}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg></button>`
                 : ''}
               ${isAdmin && l.status !== 'dikembalikan' ? remindBtnHTML(l) : ''}
               ${isAdmin ? hapusPaketBtnHTML(l) : ''}
@@ -2706,6 +2705,40 @@ function deleteProjector(id){
    ===================================================================== */
 
 
+async function returnPaketAdmin(csv){
+  if (!currentUser || currentUser.role !== 'admin') return showToast('Hanya admin yang bisa mengembalikan.', 'error');
+  const members = resolveMemberCsv(csv).filter(m => m && m.status === 'dipinjam');
+  if (!members.length) return showToast('Tidak ada item yang masih dipinjam.', 'error');
+  const items = members.map(m => {
+    const it = m.jenis === 'ruang' ? roomById(m.roomId) : projectorById(m.projectorId);
+    return it ? (m.jenis === 'ruang' ? it.nama : (it.kode + ' - ' + it.nama)) : (m.jenis === 'ruang' ? 'Ruang' : 'LCD');
+  }).join('<br>');
+  const waktu = fmtDate(nowLocalValue());
+  openConfirm('Pengembalian', `Konfirmasi pengembalian berikut?<br><b>${items}</b><br>Unit akan kembali berstatus <b>Tersedia</b>.<br>Waktu pengembalian: <b>${waktu}</b>`, 'Ya, Kembalikan', async () => {
+    const tgl = nowLocalValue();
+    try {
+      await runTransaction(db, async (tx) => {
+        const refs = members.map(m => doc(db, m.jenis === 'ruang' ? 'room_loans' : 'loans', m.id));
+        const snaps = [];
+        for (const ref of refs) snaps.push(await tx.get(ref));
+        snaps.forEach(snap => {
+          if (!snap.exists() || snap.data().status !== 'dipinjam') throw new Error('NOT_ACTIVE');
+        });
+        snaps.forEach((snap, i) => {
+          const m = members[i];
+          tx.update(snap.ref, { status: 'dikembalikan', tglKembali: tgl });
+          if (m.jenis === 'ruang') tx.update(doc(db, 'rooms', m.roomId), { status: 'tersedia' });
+          else tx.update(doc(db, 'projectors', m.projectorId), { status: 'tersedia' });
+        });
+      });
+      showToast('Unit berhasil dikembalikan. Terima kasih!');
+    } catch (err) {
+      console.error(err);
+      showToast(err && err.message === 'NOT_ACTIVE' ? 'Item sudah bukan status Dipinjam. Muat ulang halaman.' : 'Gagal memproses pengembalian: ' + (err && err.code ? err.code : 'error'), 'error');
+    }
+  });
+}
+
 function returnLoan(loanId){
   const loan = state.loans.find(l => l.id === loanId);
   if (!loan || loan.status !== 'dipinjam') return;
@@ -3266,6 +3299,8 @@ document.addEventListener('click', e => {
   if (retRoom) return returnRoomLoan(retRoom.dataset.returnRoom);
   const retPaket = e.target.closest('[data-return-paket]');
   if (retPaket){ submitReturn(resolveMemberCsv(retPaket.dataset.returnPaket)); return; }
+  const retPaketTx = e.target.closest('[data-return-paket-tx]');
+  if (retPaketTx){ returnPaketAdmin(retPaketTx.dataset.returnPaketTx); return; }
   const delPaket = e.target.closest('[data-del-paket]');
   if (delPaket){ deleteTransactions(resolveMemberCsv(delPaket.dataset.delPaket)); return; }
   const editItem = e.target.closest('[data-edit-item]');
