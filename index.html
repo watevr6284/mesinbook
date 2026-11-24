@@ -321,6 +321,11 @@ input,select,textarea{font-family:inherit}
 
 .table-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
 .table-scroll{overflow-x:auto}
+.table-compact{font-size:.78rem;width:100%}
+.table-compact th,.table-compact td{padding:7px 9px}
+.table-compact thead th{white-space:normal;line-height:1.25;font-size:.62rem;vertical-align:middle}
+.table-compact tbody td{white-space:normal;word-break:break-word;vertical-align:top}
+.table-compact .badge{font-size:.62rem;padding:4px 8px}
 table{width:100%;border-collapse:collapse;font-size:.85rem}
 thead th{
   text-align:left;font-size:.66rem;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
@@ -760,7 +765,7 @@ tbody tr:hover{background:#FCFCFA}
           </div>
           <div class="card-body" style="padding:0">
             <div class="table-scroll">
-              <table aria-label="Daftar pengembalian LCD dan ruangan">
+              <table class="table-compact" aria-label="Daftar pengembalian LCD dan ruangan">
                 <thead><tr><th>Nama Lengkap</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Tanggal Pinjam</th><th>Jam Pinjam</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
                 <tbody id="pengembalianBody"></tbody>
               </table>
@@ -777,7 +782,7 @@ tbody tr:hover{background:#FCFCFA}
           </div>
           <div class="card-body" style="padding:0">
             <div class="table-scroll">
-              <table aria-label="Riwayat pinjaman kelas Anda">
+              <table class="table-compact" aria-label="Riwayat pinjaman kelas Anda">
                 <thead><tr><th>Nama Lengkap</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th></tr></thead>
                 <tbody id="myLoanBody"></tbody>
               </table>
@@ -834,7 +839,7 @@ tbody tr:hover{background:#FCFCFA}
           </button>
         </div>
         <div class="table-wrap"><div class="table-scroll">
-          <table aria-label="Daftar LCD proyektor">
+          <table class="table-compact" aria-label="Daftar LCD proyektor">
             <thead><tr>
               <th>Kode</th><th>Unit</th><th>Status</th><th style="text-align:right">Aksi</th>
             </tr></thead>
@@ -866,7 +871,7 @@ tbody tr:hover{background:#FCFCFA}
           </button>
         </div>
         <div class="table-wrap"><div class="table-scroll">
-          <table aria-label="Daftar ruangan">
+          <table class="table-compact" aria-label="Daftar ruangan">
             <thead><tr>
               <th>Kode</th><th>Ruang</th><th>Kapasitas</th><th>Status</th><th style="text-align:right">Aksi</th>
             </tr></thead>
@@ -885,10 +890,27 @@ tbody tr:hover{background:#FCFCFA}
         <div class="pill-group" id="loanPills">
           <button class="pill active" data-loan-filter="semua">Semua<span class="n" id="cntAll">0</span></button>
           <button class="pill" data-loan-filter="dipinjam">Dipinjam<span class="n" id="cntDipinjam">0</span></button>
+          <button class="pill" data-loan-filter="menunggu">Menunggu Verifikasi<span class="n" id="cntMenunggu">0</span></button>
           <button class="pill" data-loan-filter="dikembalikan">Dikembalikan<span class="n" id="cntDikembalikan">0</span></button>
         </div>
+        <div class="toolbar" style="margin-bottom:12px">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;width:100%">
+            <label style="font-size:.78rem;font-weight:700;color:var(--muted)">Dari</label>
+            <input type="date" id="loanFrom" class="plain-input" style="width:150px">
+            <label style="font-size:.78rem;font-weight:700;color:var(--muted)">Sampai</label>
+            <input type="date" id="loanTo" class="plain-input" style="width:150px">
+            <select id="loanKelas" class="plain-input" style="width:150px"><option value="semua">Semua Kelas</option></select>
+            <select id="loanJenis" class="plain-input" style="width:170px">
+              <option value="semua">Semua Jenis</option>
+              <option value="lcd">Ada LCD</option>
+              <option value="ruang">Ada Ruang</option>
+              <option value="paket">Paket Lengkap</option>
+            </select>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnLoanReset">Reset Filter</button>
+          </div>
+        </div>
         <div class="table-wrap"><div class="table-scroll">
-          <table aria-label="Daftar transaksi peminjaman">
+          <table class="table-compact" aria-label="Daftar transaksi peminjaman">
             <thead><tr>
               <th>Nama Peminjam</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th><th style="text-align:right">Aksi</th>
             </tr></thead>
@@ -935,7 +957,7 @@ tbody tr:hover{background:#FCFCFA}
             </div>
             <div class="report-summary" id="reportSummary"></div>
             <div class="table-scroll" style="border:1px solid var(--line);border-radius:12px">
-              <table aria-label="Tabel laporan">
+              <table class="table-compact" aria-label="Tabel laporan">
                 <thead><tr>
                   <th>No</th><th>Nama Peminjam</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th><th style="text-align:right">Aksi</th>
                 </tr></thead>
@@ -963,7 +985,7 @@ tbody tr:hover{background:#FCFCFA}
           </button>
         </div>
         <div class="table-wrap"><div class="table-scroll">
-          <table aria-label="Daftar akun terdaftar">
+          <table class="table-compact" aria-label="Daftar akun terdaftar">
             <thead><tr>
               <th>#</th><th>Nama</th><th>Username</th><th>Tipe</th><th>Email</th><th>NIM / NIP</th><th>Kelas</th><th>Peran</th><th>Terdaftar</th><th style="text-align:right">Aksi</th>
             </tr></thead>
@@ -1799,7 +1821,8 @@ function renderProjectors(){
 function renderLoanCounts(){
   const loans = mergedTransactions(visibleMerged());
   $('#cntAll').textContent = loans.length;
-  $('#cntDipinjam').textContent = loans.filter(l => l.status !== 'dikembalikan').length;
+  $('#cntDipinjam').textContent = loans.filter(l => l.status === 'dipinjam').length;
+  $('#cntMenunggu').textContent = loans.filter(l => l.status === 'menunggu_verifikasi').length;
   $('#cntDikembalikan').textContent = loans.filter(l => l.status === 'dikembalikan').length;
 }
 
@@ -1859,9 +1882,28 @@ function renderLoans(){
   const isAdmin = currentUser.role === 'admin';
   const q = ($('#loanSearch').value || '').trim().toLowerCase();
 
+  const kelasSel = $('#loanKelas');
+  if (kelasSel){
+    const prev = kelasSel.value || 'semua';
+    const kelasSet = [...new Set(mergedTransactions(visibleMerged()).map(l => l.borrowerKelas).filter(Boolean))].sort();
+    kelasSel.innerHTML = '<option value="semua">Semua Kelas</option>' + kelasSet.map(k => '<option value="' + esc(k) + '">' + esc(k) + '</option>').join('');
+    if ([...kelasSel.options].some(o => o.value === prev)) kelasSel.value = prev;
+  }
+
   let loans = mergedTransactions(visibleMerged()).sort((a, b) => String(b.tglPinjam).localeCompare(String(a.tglPinjam)));
   if (loanFilter === 'dipinjam')     loans = loans.filter(l => l.status === 'dipinjam');
+  if (loanFilter === 'menunggu')     loans = loans.filter(l => l.status === 'menunggu_verifikasi');
   if (loanFilter === 'dikembalikan') loans = loans.filter(l => l.status === 'dikembalikan');
+  const from = ($('#loanFrom') && $('#loanFrom').value) || '';
+  const to   = ($('#loanTo') && $('#loanTo').value) || '';
+  if (from) loans = loans.filter(l => String(l.tglPinjam || '').slice(0,10) >= from);
+  if (to)   loans = loans.filter(l => String(l.tglPinjam || '').slice(0,10) <= to);
+  const kelasF = ($('#loanKelas') && $('#loanKelas').value) || 'semua';
+  if (kelasF && kelasF !== 'semua') loans = loans.filter(l => l.borrowerKelas === kelasF);
+  const jenisF = ($('#loanJenis') && $('#loanJenis').value) || 'semua';
+  if (jenisF === 'lcd')   loans = loans.filter(l => l.lcdText && l.lcdText !== '-');
+  if (jenisF === 'ruang') loans = loans.filter(l => l.ruangText && l.ruangText !== '-');
+  if (jenisF === 'paket') loans = loans.filter(l => l.lcdText && l.lcdText !== '-' && l.ruangText && l.ruangText !== '-');
   if (q) loans = loans.filter(l =>
     [l.borrowerNama, l.borrowerNim, l.borrowerKelas, l.mataKuliah, l.lcdText, l.ruangText, l.tglPinjam, l.tglKembali, l.status]
       .some(f => String(f || '').toLowerCase().includes(q)));
@@ -3343,6 +3385,18 @@ $$('#loanPills .pill').forEach(pill => pill.addEventListener('click', () => {
   $$('#loanPills .pill').forEach(p => p.classList.toggle('active', p === pill));
   renderLoans();
 }));
+['loanFrom','loanTo','loanKelas','loanJenis'].forEach(id => {
+  const el = $('#' + id);
+  if (el) el.addEventListener('change', renderLoans);
+});
+const btnLoanReset = $('#btnLoanReset');
+if (btnLoanReset) btnLoanReset.addEventListener('click', () => {
+  ['loanFrom','loanTo'].forEach(id => { const e = $('#' + id); if (e) e.value = ''; });
+  ['loanKelas','loanJenis'].forEach(id => { const e = $('#' + id); if (e) e.value = 'semua'; });
+  loanFilter = 'semua';
+  $$('#loanPills .pill').forEach(p => p.classList.toggle('active', p.dataset.loanFilter === 'semua'));
+  renderLoans();
+});
 
 // laporan
 $('#reportFrom').addEventListener('change', renderReport);
