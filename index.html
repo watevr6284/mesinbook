@@ -756,6 +756,13 @@ tbody tr:hover{background:#FCFCFA}
             <input class="plain-input" type="text" id="pengembalianQuery" placeholder="Kosongkan untuk melihat semua, atau ketik nama / NIM / kelas / mata kuliah / item" autocomplete="off" style="flex:1;min-width:220px" aria-label="Cari">
             <button type="submit" class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>Cari</button>
           </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
+            <label style="font-size:.78rem;font-weight:700;color:var(--muted)">Dari</label>
+            <input type="date" id="pengembalianFrom" class="plain-input" style="width:150px">
+            <label style="font-size:.78rem;font-weight:700;color:var(--muted)">Sampai</label>
+            <input type="date" id="pengembalianTo" class="plain-input" style="width:150px">
+            <button type="button" class="btn btn-ghost btn-sm" id="btnPengembalianReset">Reset Filter</button>
+          </div>
           <p class="hint" style="margin-top:10px;margin-bottom:0">Semua riwayat peminjaman LCD &amp; ruangan tampil di bawah. Gunakan kolom di atas untuk menyaring (opsional).</p>
         </form>
         <div class="card">
@@ -1645,6 +1652,9 @@ function enterApp(){
   const lf = $('#loanFrom'), lt = $('#loanTo');
   if (lf && !lf.value) lf.value = todayISO();
   if (lt && !lt.value) lt.value = todayISO();
+  const pf = $('#pengembalianFrom'), pt = $('#pengembalianTo');
+  if (pf && !pf.value) pf.value = todayISO();
+  if (pt && !pt.value) pt.value = todayISO();
   switchView('dashboard');
   renderAll();
 }
@@ -2079,8 +2089,13 @@ function renderPengembalian(){
   const tbody = $('#pengembalianBody');
   const count = $('#pengembalianCount');
 
-  const merged = mergedTransactions([...state.loans, ...state.roomLoans])
+  const from = ($('#pengembalianFrom') && $('#pengembalianFrom').value) || '';
+  const to   = ($('#pengembalianTo') && $('#pengembalianTo').value) || '';
+
+  let merged = mergedTransactions([...state.loans, ...state.roomLoans])
     .sort((a, b) => String(b.tglPinjam).localeCompare(String(a.tglPinjam)));
+  if (from) merged = merged.filter(l => String(l.tglPinjam || '').slice(0,10) >= from);
+  if (to)   merged = merged.filter(l => String(l.tglPinjam || '').slice(0,10) <= to);
 
   const rows = q ? merged.filter(l =>
     [l.borrowerNama, l.borrowerNim, l.borrowerKelas, l.mataKuliah, l.lcdText, l.ruangText, l.tglPinjam, l.status]
@@ -3481,6 +3496,18 @@ $('#newUserRole').addEventListener('change', e => {
 $('#accTipe').addEventListener('change', () => applyTipeVisibility('acc'));
 $('#newUserTipe').addEventListener('change', () => applyTipeVisibility('newUser'));
 $('#formPengembalianCari').addEventListener('submit', e => { e.preventDefault(); renderPengembalian(); });
+['pengembalianFrom','pengembalianTo'].forEach(id => {
+  const el = $('#' + id);
+  if (el) el.addEventListener('change', renderPengembalian);
+});
+const btnPengembalianReset = $('#btnPengembalianReset');
+if (btnPengembalianReset) btnPengembalianReset.addEventListener('click', () => {
+  const pf = $('#pengembalianFrom'), pt = $('#pengembalianTo');
+  if (pf) pf.value = todayISO();
+  if (pt) pt.value = todayISO();
+  const pq = $('#pengembalianQuery'); if (pq) pq.value = '';
+  renderPengembalian();
+});
 $('#pengembalianQuery').addEventListener('input', renderPengembalian);
 $('#btnAddUser').addEventListener('click', () => openUserModal());
 $('#btnSendReset').addEventListener('click', async () => {
