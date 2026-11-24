@@ -102,6 +102,16 @@ Login sebagai admin → **Data Proyektor** / **Data Ruang** → tombol **Muat 8 
 4. Admin membuka menu **Pengembalian** → **Verifikasi** (unit kembali `Tersedia`, status `Dikembalikan`) atau **Tolak** (kembali `Dipinjam`; peminjam mengajukan lagi).
 5. Menu **Transaksi** & **Laporan** ikut menampilkan status **Menunggu Verifikasi**; filter status Laporan punya opsi **Menunggu verifikasi**; cetak/PDF menampilkan label yang sama.
 
+## Pengingat Pengembalian dari Admin (notifikasi di aplikasi)
+
+1. Admin membuka menu **Transaksi** atau **Pengembalian** → pada paket yang masih aktif klik tombol **Pengingat** (ikon lonceng).
+2. Sistem menyimpan pesan pengingat di koleksi `notifications` Firestore, ditujukan ke **akun yang melakukan peminjaman** (field `userId` pada transaksi).
+3. Saat peminjam membuka aplikasi, muncul **banner pengingat** di atas halaman dan lonceng di kanan atas berubah badge. Pesan berisi item (LCD/Ruang) + tanggal pinjam.
+4. Peminjam klik **Tandai dibaca** untuk menghilangkan banner (status `read` berubah di Firestore).
+5. Aturan keaman `notifications` sudah ada di `firestore.rules` — **wajib di-publish ulang** ke Firebase Console agar izin baca/tulis pengingat aktif (propagasi bisa memakan waktu).
+
+Catatan: pengingat hanya sampai ke akun yang terikat pada transaksi. Jika peminjaman dicatat lewat akun bersama/kiosk, pengingat akan muncul di akun tersebut.
+
 ## Impor Akun Mahasiswa dari Excel (menu Pengguna)
 
 1. **Pengguna → Impor Excel**

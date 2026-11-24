@@ -87,5 +87,16 @@ service cloud.firestore {
         || (signedIn() && onlySubmitReturnChanges());
       allow delete: if isAdmin();              // hanya admin yang bisa menghapus riwayat
     }
+
+    // --- notifikasi pengingat kembali (admin -> pengguna) ---
+    match /notifications/{id} {
+      allow read: if signedIn()
+        && (isAdmin() || request.auth.uid == resource.data.userId);
+      allow create: if isAdmin();
+      allow update: if isAdmin()
+        || (signedIn() && request.auth.uid == resource.data.userId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']));
+      allow delete: if isAdmin();
+    }
   }
 }
