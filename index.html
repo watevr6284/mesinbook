@@ -1641,6 +1641,10 @@ function enterApp(){
     $('#reportTo').value = todayISO();
   }
 
+  // default filter Transaksi = hari ini
+  const lf = $('#loanFrom'), lt = $('#loanTo');
+  if (lf && !lf.value) lf.value = todayISO();
+  if (lt && !lt.value) lt.value = todayISO();
   switchView('dashboard');
   renderAll();
 }
@@ -3426,7 +3430,7 @@ $$('#loanPills .pill').forEach(pill => pill.addEventListener('click', () => {
 });
 const btnLoanReset = $('#btnLoanReset');
 if (btnLoanReset) btnLoanReset.addEventListener('click', () => {
-  ['loanFrom','loanTo'].forEach(id => { const e = $('#' + id); if (e) e.value = ''; });
+  ['loanFrom','loanTo'].forEach(id => { const e = $('#' + id); if (e) e.value = todayISO(); });
   ['loanKelas','loanJenis'].forEach(id => { const e = $('#' + id); if (e) e.value = 'semua'; });
   loanFilter = 'semua';
   $$('#loanPills .pill').forEach(p => p.classList.toggle('active', p.dataset.loanFilter === 'semua'));
