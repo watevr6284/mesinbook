@@ -1838,9 +1838,9 @@ const mergedStatusBadge = l => l.status === 'dikembalikan'
     ? '<span class="badge waiting">Menunggu Verifikasi</span>'
     : '<span class="badge dipinjam">Dipinjam</span>';
 const trashIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
-const hapusPaketBtnHTML = l => `<button class="mini-btn danger" data-del-paket="${l.anggota.map(a => a.jenis + ':' + a.id).join(',')}">${trashIcon}Hapus</button>`;
-const editPaketBtnHTML = l => `<button class="mini-btn" data-edit-item="${l.anggota.map(a => a.jenis + ':' + a.id).join(',')}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L8 20l-5 1 1-5Z"/></svg>Edit</button>`;
-const remindBtnHTML = l => `<button class="mini-btn remind" type="button" data-remind="${encodeURIComponent(mergedKey(l))}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Pengingat</button>`;
+const hapusPaketBtnHTML = l => `<button class="mini-btn danger" type="button" title="Hapus transaksi" aria-label="Hapus transaksi" data-del-paket="${l.anggota.map(a => a.jenis + ':' + a.id).join(',')}">${trashIcon}</button>`;
+const editPaketBtnHTML = l => `<button class="mini-btn" type="button" title="Edit item" aria-label="Edit item" data-edit-item="${l.anggota.map(a => a.jenis + ':' + a.id).join(',')}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L8 20l-5 1 1-5Z"/></svg></button>`;
+const remindBtnHTML = l => `<button class="mini-btn remind" type="button" title="Kirim pengingat" aria-label="Kirim pengingat" data-remind="${encodeURIComponent(mergedKey(l))}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>`;
 // Kunci unik satu paket pinjaman (dipakai juga saat mengirim pengingat)
 const mergedKey = l => [l.borrowerNama || '', l.borrowerNim || l.borrowerNip || '', l.borrowerKelas || '', mataKuliah(l), l.tglPinjam || ''].join('|');
 // Gabungkan paket pinjaman LCD + Ruang yang dibuat dalam satu pengajuan (sama: nama, NIM, kelas, mata kuliah, waktu pinjam)
@@ -1927,10 +1927,10 @@ function renderLoans(){
           <td>
             <div class="row-actions">
               ${isAdmin && pendingLcd.length
-                ? `<button class="mini-btn" data-return="${pendingLcd[0].id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>Kembalikan LCD</button>`
+                ? `<button class="mini-btn" type="button" title="Kembalikan LCD" aria-label="Kembalikan LCD" data-return="${pendingLcd[0].id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg></button>`
                 : ''}
               ${isAdmin && pendingRuang.length
-                ? `<button class="mini-btn" data-return-room="${pendingRuang[0].id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>Kembalikan Ruang</button>`
+                ? `<button class="mini-btn" type="button" title="Kembalikan Ruang" aria-label="Kembalikan Ruang" data-return-room="${pendingRuang[0].id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg></button>`
                 : ''}
               ${isAdmin && l.status !== 'dikembalikan' ? remindBtnHTML(l) : ''}
               ${isAdmin ? hapusPaketBtnHTML(l) : ''}
@@ -2112,10 +2112,10 @@ function renderPengembalian(){
           <td style="text-align:right">
             <div class="row-actions" style="justify-content:flex-end">
               ${pending.length
-                ? `<button class="mini-btn" data-return-paket="${csvPending}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>Kembalikan</button>`
+                ? `<button class="mini-btn" type="button" title="Kembalikan" aria-label="Kembalikan" data-return-paket="${csvPending}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg></button>`
                 : ''}
               ${waiting.length && isAdminPengembalian
-                ? `<button class="mini-btn" data-verify="${csvWaiting}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 10"/></svg>Verifikasi</button><button class="mini-btn danger" data-reject="${csvWaiting}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Tolak</button>`
+                ? `<button class="mini-btn" type="button" title="Verifikasi" aria-label="Verifikasi" data-verify="${csvWaiting}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 10"/></svg></button><button class="mini-btn danger" type="button" title="Tolak" aria-label="Tolak" data-reject="${csvWaiting}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`
                 : ''}
               ${!pendingAll.length && waiting.length && !isAdminPengembalian ? '<span style="color:var(--amber-deep);font-size:.72rem;font-weight:800">MENUNGGU VERIFIKASI</span>' : ''}
               ${!pendingAll.length && !waiting.length ? '<span style="color:var(--muted);font-size:.75rem">Selesai</span>' : ''}
