@@ -712,7 +712,7 @@ tbody tr:hover{background:#FCFCFA}
               </div>
             </div>
             <div class="field">
-              <label for="paketMataKuliah">Mata Kuliah <span class="req">*</span> <span style="font-weight:500;color:var(--muted)">(huruf besar)</span></label>
+              <label for="paketMataKuliah">Mata Kuliah/Kegiatan <span class="req">*</span> <span style="font-weight:500;color:var(--muted)">(huruf besar)</span></label>
               <input class="plain-input" type="text" id="paketMataKuliah" placeholder="mis. PEMROGRAMAN WEB" autocomplete="off" required>
             </div>
             <div class="form-row">
@@ -773,7 +773,7 @@ tbody tr:hover{background:#FCFCFA}
           <div class="card-body" style="padding:0">
             <div class="table-scroll">
               <table class="table-compact" aria-label="Daftar pengembalian LCD dan ruangan">
-                <thead><tr><th>Nama Lengkap</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Tanggal Pinjam</th><th>Jam Pinjam</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+                <thead><tr><th>Nama Lengkap</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah/Kegiatan</th><th>Nama LCD</th><th>Nama Ruang</th><th>Tanggal Pinjam</th><th>Jam Pinjam</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
                 <tbody id="pengembalianBody"></tbody>
               </table>
             </div>
@@ -790,7 +790,7 @@ tbody tr:hover{background:#FCFCFA}
           <div class="card-body" style="padding:0">
             <div class="table-scroll">
               <table class="table-compact" aria-label="Riwayat pinjaman kelas Anda">
-                <thead><tr><th>Nama Lengkap</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th></tr></thead>
+                <thead><tr><th>Nama Lengkap</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah/Kegiatan</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th></tr></thead>
                 <tbody id="myLoanBody"></tbody>
               </table>
             </div>
@@ -919,7 +919,7 @@ tbody tr:hover{background:#FCFCFA}
         <div class="table-wrap"><div class="table-scroll">
           <table class="table-compact" aria-label="Daftar transaksi peminjaman">
             <thead><tr>
-              <th>Nama Peminjam</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th><th style="text-align:right">Aksi</th>
+              <th>Nama Peminjam</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah/Kegiatan</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th><th style="text-align:right">Aksi</th>
             </tr></thead>
             <tbody id="loanTableBody"></tbody>
           </table>
@@ -966,7 +966,7 @@ tbody tr:hover{background:#FCFCFA}
             <div class="table-scroll" style="border:1px solid var(--line);border-radius:12px">
               <table class="table-compact" aria-label="Tabel laporan">
                 <thead><tr>
-                  <th>No</th><th>Nama Peminjam</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th><th style="text-align:right">Aksi</th>
+                  <th>No</th><th>Nama Peminjam</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah/Kegiatan</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th><th style="text-align:right">Aksi</th>
                 </tr></thead>
                 <tbody id="reportTableBody"></tbody>
               </table>
@@ -2002,7 +2002,7 @@ function exportReportCsv(){
   const rows = reportRows();
   const fmtTgl = v => v ? fmtDate(v).replace(/;/g, ',') : '';
   const safe = v => String(v ?? '').replace(/;/g, ',').replace(/\r?\n/g, ' ');
-  const head = ['No', 'Nama Peminjam', 'NIM', 'Kelas', 'Mata Kuliah', 'Nama LCD', 'Nama Ruang', 'Pinjam', 'Kembali', 'Status'];
+  const head = ['No', 'Nama Peminjam', 'NIM', 'Kelas', 'Mata Kuliah/Kegiatan', 'Nama LCD', 'Nama Ruang', 'Pinjam', 'Kembali', 'Status'];
   const lines = [head.join(';')];
   rows.forEach((l, i) => {
     const st = l.status === 'dikembalikan' ? 'Dikembalikan' : l.status === 'menunggu_verifikasi' ? 'Menunggu Verifikasi' : 'Dipinjam';
@@ -2029,7 +2029,7 @@ function buildPrintReport(){
     <div class="p-sub">Sistem Peminjaman &amp; Pengembalian LCD Proyektor &amp; Ruangan - MESINBOOK</div>
     <div class="p-meta">Periode: <b>${fmtDate(from)}</b> s/d <b>${fmtDate(to)}</b> &nbsp;&#183;&nbsp; Dicetak: ${fmtDate(nowLocalValue())} &nbsp;&#183;&nbsp; Oleh: ${esc(currentUser.nama)}</div>
     <table>
-      <thead><tr><th>No</th><th>Nama Peminjam</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th></tr></thead>
+      <thead><tr><th>No</th><th>Nama Peminjam</th><th>NIM</th><th>Kelas</th><th>Mata Kuliah/Kegiatan</th><th>Nama LCD</th><th>Nama Ruang</th><th>Pinjam</th><th>Kembali</th><th>Status</th></tr></thead>
       <tbody>
         ${rows.length === 0
           ? '<tr><td colspan="10" style="text-align:center">Tidak ada data pada periode ini.</td></tr>'
@@ -2309,7 +2309,7 @@ function notifyReturnEmail(members){
       Nama: first.borrowerNama || '-',
       NIM: first.borrowerNim || first.borrowerNip || '-',
       Kelas: first.borrowerKelas || '-',
-      'Mata Kuliah': mataKuliah(first),
+      'Mata Kuliah/Kegiatan': mataKuliah(first),
       'Item dikembalikan': items,
       'Waktu pengembalian': fmtDate(nowLocalValue())
     };
